@@ -1,0 +1,32 @@
+{
+  "name": "tamapi",
+  "version": "1.0.0",
+  "description": "Tamagotchi inspired virtual pet API",
+  "homepage": "https://github.com/dybdeskarphet/tamapi#readme",
+  "bugs": {
+    "url": "https://github.com/dybdeskarphet/tamapi/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dybdeskarphet/tamapi.git"
+  },
+  "license": "GPLv3",
+  "author": "Ahmet Arda Kavakcı",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "build": "npx tsc",
+    "dev": "npx ts-node src/server.ts"
+  },
+  "dependencies": {
+    "@types/express": "^5.0.0",
+    "@types/mongoose": "^5.11.96",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "ip": "^2.0.1",
+    "mongoose": "^8.10.1"
+  },
+  "devDependencies": {
+    "@types/ip": "^1.1.3"
+  }
+}
