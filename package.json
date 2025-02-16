@@ -20,11 +20,13 @@
   },
   "dependencies": {
     "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.8",
     "@types/mongoose": "^5.11.96",
     "bcryptjs": "^3.0.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "ip": "^2.0.1",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.10.1"
   },
   "devDependencies": {
