@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: Tamapi
+  description: Tamagotchi inspired virtual pet API.
+  version: 1.0.0
+
+paths:
+  /auth:
+    get:
+      summary: "Root of auth route"
+      description: "Calling this endpoint does nothing and returns a message."
+      responses:
+        "201":
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Calling root does nothing in auth route."
+        "500":
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+  /:
+    get:
+      summary: "API root endpoint"
+      description: "Returns a simple welcome message."
+      responses:
+        "200":
+          description: "Successful response"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Say hello to Tamapi"
