@@ -5,7 +5,11 @@ const err = (context: String, message: String) => {
 };
 
 const log = (context: String, message: String) => {
+  console.log(`\x1b[1;33m${context}: \x1b[0m${message}`);
+};
+
+const ok = (context: String, message: String) => {
   console.log(`\x1b[1;32m${context}: \x1b[0m${message}`);
 };
 
-export { err, log };
+export { err, log, ok };
