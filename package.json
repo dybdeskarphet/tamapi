@@ -21,6 +21,7 @@
   "dependencies": {
     "@types/express": "^5.0.0",
     "@types/mongoose": "^5.11.96",
+    "bcryptjs": "^3.0.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "ip": "^2.0.1",
