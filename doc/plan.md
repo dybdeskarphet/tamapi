@@ -27,10 +27,10 @@ graph LR;
     pmp-->|"POST /friends/{id}/send-gift"|petgift["Send items"]
     pmp-->|"POST /pets/{id}/battle"|petbattle["Battle with other pets"]
     pmp-->|"GET /leaderboard"|leaderbord["See top pets/users"]
-	main["🐈 tamapi"]-->pmp["Store"];
-    pmp-->|"POST /store/buy"|butstore["Buy items"]
-    pmp-->|"POST /store/sell"|sellstore["Sell back items"]
-    pmp-->|"GET /store"|browsestore["Browse available items"]
+	main["🐈 tamapi"]-->pst["Store"];
+    pst-->|"POST /store/buy"|butstore["Buy items"]
+    pst-->|"POST /store/sell"|sellstore["Sell back items"]
+    pst-->|"GET /store"|browsestore["Browse available items"]
 ```
 
 ## Additional Information
