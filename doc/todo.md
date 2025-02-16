@@ -1,5 +1,5 @@
 # tamapi todo
 
-- [ ] Create an auth system
-- [ ] Connect Users with Pets
-- [ ] Add OpenAPI file and SwaggerUI
+- [x] Create an auth system
+- [x] Add OpenAPI file and SwaggerUI
+- [ ] Use controllers instead of cluttering routes with logic
