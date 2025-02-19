@@ -1,10 +1,11 @@
-import express, { Express, Request, Response } from "express";
 import dotenv from "dotenv";
+import express, { Express } from "express";
 import ip from "ip";
 import { ok } from "./helpers";
 import { authRoute } from "./routes/auth";
 import YAML from "yamljs";
 import swaggerUi from "swagger-ui-express";
+import { rootController } from "./controllers/root";
 
 dotenv.config();
 const app: Express = express();
@@ -27,10 +28,7 @@ app.use("/auth", authRoute);
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 // Root
-app.get("/", (req: Request, res: Response) => {
-  res.send("Say hello to Tamapi");
-  return;
-});
+app.get("/", rootController);
 
 app.listen(port, () => {
   ok("server", `Server running on http://${ip.address()}:${port}`);
