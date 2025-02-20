@@ -5,6 +5,19 @@ info:
   version: 1.0.0
 
 paths:
+  /:
+    get:
+      summary: "API root endpoint"
+      description: "Returns a simple welcome message."
+      responses:
+        "200":
+          description: "Successful response"
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Say hello to Tamapi"
+
   /auth:
     get:
       summary: "Root of auth route"
@@ -30,15 +43,108 @@ paths:
                   message:
                     type: string
                     example: "Internal server error."
-  /:
-    get:
-      summary: "API root endpoint"
-      description: "Returns a simple welcome message."
+
+  /auth/register:
+    post:
+      summary: Register a new user
+      description: Creates a new user account.
+      operationId: postAuthRegister
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - name
+                - username
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                name:
+                  type: string
+                  example: "John Doe"
+                username:
+                  type: string
+                  example: "johndoe"
+                password:
+                  type: string
+                  format: password
+                  example: "strongpassword123!"
+      responses:
+        "201":
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User registered successfully"
+        "409":
+          description: User already exists
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "User already exists"
+        "500":
+          description: Internal server error
+
+  /auth/login:
+    post:
+      summary: Login a user
+      description: Authenticates a user and returns a JWT token.
+      operationId: postAuthLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "strongpassword123!"
       responses:
         "200":
-          description: "Successful response"
+          description: Login successful
           content:
-            text/plain:
+            application/json:
               schema:
-                type: string
-                example: "Say hello to Tamapi"
+                type: object
+                properties:
+                  token:
+                    type: string
+                    example: "eyJhbGciOiJIUzI1NiIsIn..."
+                  message:
+                    type: string
+                    example: "Login successful"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Invalid credentials."
+        "500":
+          description: Internal server error
