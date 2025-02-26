@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 dotenv.config();
 connectDatabase(path.basename(__filename));
 const VERBOSE_LOG = true;
+const IDENTIFIER = "AuthController";
 
 const getAuthRoot = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -16,7 +17,7 @@ const getAuthRoot = async (req: Request, res: Response): Promise<void> => {
       message: "Calling root does nothing in auth route.",
     });
   } catch (error) {
-    VERBOSE_LOG && err("routes(auth)", `Error while 'GET /':\n${error}`);
+    VERBOSE_LOG && err(IDENTIFIER, `Error while 'GET /':\n${error}`);
     res.status(500).json({ message: "Internal server error." });
   }
 };
@@ -36,8 +37,7 @@ const postAuthRegister = async (req: Request, res: Response): Promise<void> => {
     res.status(201).json({ message: "User registered successfully" });
     return;
   } catch (error) {
-    VERBOSE_LOG &&
-      err("AuthController", `Couldn't register the user: ${error}`);
+    VERBOSE_LOG && err(IDENTIFIER, `Couldn't register the user: ${error}`);
     res.status(500).json({ message: "Internal server error" });
     return;
   }
@@ -72,7 +72,7 @@ const postAuthLogin = async (req: Request, res: Response): Promise<void> => {
 
     res.status(200).json({ token, message: "Login successful" });
   } catch (error) {
-    VERBOSE_LOG && err("AuthController", `Couldn't log in as a user: ${error}`);
+    VERBOSE_LOG && err(IDENTIFIER, `Couldn't log in as a user: ${error}`);
     res.status(500).json({ message: "Internal server error" });
     return;
   }
