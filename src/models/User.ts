@@ -9,6 +9,7 @@ interface IUser extends Document {
   name: string;
   username: string;
   password: string;
+  pets: mongoose.Types.ObjectId[];
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -17,6 +18,7 @@ const UserSchema = new mongoose.Schema<IUser>({
   name: { type: String, required: true, unique: false },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true, select: false },
+  pets: [{ type: mongoose.Schema.Types.ObjectId, ref: "Pet" }],
 });
 
 UserSchema.pre("save", async function (next) {
