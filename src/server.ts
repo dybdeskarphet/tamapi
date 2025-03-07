@@ -6,6 +6,11 @@ import { authRoute } from "./routes/auth";
 import YAML from "yamljs";
 import swaggerUi from "swagger-ui-express";
 import { rootController } from "./controllers/RootController";
+import { petsRoute } from "./routes/pets";
+import { connectDatabase } from "./db";
+import path from "path";
+
+connectDatabase(path.basename(__filename));
 
 dotenv.config();
 const app: Express = express();
@@ -23,6 +28,7 @@ app.use(express.json());
 
 // Routes
 app.use("/auth", authRoute);
+app.use("/pets", petsRoute);
 
 // Setup API doc
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));

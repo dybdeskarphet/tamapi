@@ -2,12 +2,10 @@ import express, { Request, Response } from "express";
 import { err, log } from "../helpers";
 import dotenv from "dotenv";
 import path from "path";
-import { connectDatabase } from "../db";
 import { IUser, User } from "../models/User";
 import jwt from "jsonwebtoken";
 
 dotenv.config();
-connectDatabase(path.basename(__filename));
 const VERBOSE_LOG = true;
 const IDENTIFIER = "AuthController";
 
