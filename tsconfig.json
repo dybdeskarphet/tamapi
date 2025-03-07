@@ -12,5 +12,5 @@
   "ts-node": {
     "files": true
   },
-  "files": ["src/server.ts", "src/global.d.ts"]
+  "files": ["src/server.ts", "src/types/express.d.ts"]
 }
