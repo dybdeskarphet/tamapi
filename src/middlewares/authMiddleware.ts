@@ -9,48 +9,50 @@ const authMiddleware = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) => {
+): Promise<void> => {
   try {
     const authHeader = req.headers.authorization;
 
     // All the error handling
     if (!authHeader) {
-      return res.status(401).json({
+      res.status(401).json({
         message: "Access denied. No 'Authorization' header provided.",
       });
+      return;
     }
 
     const tokenArr = authHeader.split(" ");
 
     if (!tokenArr || tokenArr.length < 2) {
-      return res
-        .status(401)
-        .json({ message: "Access denied. Invalid token format." });
+      res.status(401).json({ message: "Access denied. Invalid token format." });
+      return;
     }
 
     if (tokenArr[0] !== "Bearer") {
-      return res
-        .status(401)
-        .json({ message: "Access denied. Wrong token scheme." });
+      res.status(401).json({ message: "Access denied. Wrong token scheme." });
+      return;
     }
 
     if (!process.env.JWT_SECRET) {
       err("authMiddleware", "JWT_SECRET is missing in .env");
-      return res.status(500).json({ message: "Internal server error." });
+      res.status(500).json({ message: "Internal server error." });
+      return;
     }
 
     // Actual verification part is here
     const decoded = jwt.verify(
       tokenArr[1],
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET as string,
     ) as JwtPayload;
 
     // Attach userId to the request
     // WARN: check if Request type is extended for userId
-    req.userId = decoded.userId;
+    req.userId = decoded.userId as string;
     next();
   } catch (error) {
     err("authMiddleware", `Error while verifying token: ${error}`);
     res.status(500).json({ message: "Internal server error." });
   }
 };
+
+export { authMiddleware };
