@@ -36,3 +36,6 @@ const PetSchema = new mongoose.Schema<IPet>({
   hygiene: { type: Number, required: true },
   owner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
+
+const Pet = mongoose.model("Pet", PetSchema);
+export { Pet, IPet };
