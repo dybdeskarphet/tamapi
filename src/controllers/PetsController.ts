@@ -1,4 +1,4 @@
-import { Pet } from "../models/Pet";
+import { IPet, Pet } from "../models/Pet";
 import { User } from "../models/User";
 import dotenv from "dotenv";
 import express, { Request, Response } from "express";
@@ -29,10 +29,29 @@ const getPets = async (req: Request, res: Response): Promise<void> => {
 
     res
       .status(200)
-      .json({ pets: user.pets, message: "Pet's listed successfully" });
+      .json({ pets: user.pets, message: "Pets listed successfully" });
     return;
   } catch (error) {
     VERBOSE_LOG && err(IDENTIFIER, `Error while verifying token: ${error}`);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+const getPet = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const pet = await Pet.findById(req.params.id);
+
+    if (!pet) {
+      res.status(404).json({ message: "Pet not found by given ID" });
+      return;
+    }
+
+    res
+      .status(200)
+      .json({ pet: pet, message: "Pet stats listed successfully." });
+    return;
+  } catch (error) {
+    VERBOSE_LOG && err(IDENTIFIER, `Error while getting pet by ID: ${error}`);
     res.status(500).json({ message: "Internal server error." });
   }
 };
