@@ -42,7 +42,7 @@ const getPet = async (req: Request, res: Response): Promise<void> => {
     const pet = await Pet.findById(req.params.id);
 
     if (!pet) {
-      res.status(404).json({ message: "Pet not found by given ID" });
+      res.status(404).json({ message: "No pet at given ID" });
       return;
     }
 
@@ -56,4 +56,32 @@ const getPet = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export { getPets };
+const postPet = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const { name, type } = req.body;
+
+    if (!name || !type) {
+      res.status(400).json({ message: "Name and type is required." });
+    }
+
+    const pet = new Pet({ name, type, owner: user._id });
+    await pet.save();
+
+    user.pets.push(pet._id as mongoose.Types.ObjectId);
+    await user.save();
+
+    res.status(201).json({ pet, message: "Pet created." });
+  } catch (error) {
+    VERBOSE_LOG && err(IDENTIFIER, `Error while creating pet: ${error}`);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export { getPets, getPet, postPet };
