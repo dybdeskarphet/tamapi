@@ -148,3 +148,129 @@ paths:
                     example: "Invalid credentials."
         "500":
           description: Internal server error
+  /auth/dev-login:
+    post:
+      summary: Generate a developer login token
+      description: Endpoint to generate a token for developers only in the development environment.
+      operationId: generateDevLoginToken
+      responses:
+        "200":
+          description: Successfully generated a developer login token.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: The generated JWT token for the developer.
+                  message:
+                    type: string
+                    example: "Good luck."
+        "403":
+          description: Forbidden - This route is restricted to the development environment only.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Forbidden"
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error"
+      security: []
+  /pets:
+    get:
+      summary: Get pets of the authenticated user
+      description: Retrieves a list of pets associated with the authenticated user.
+      operationId: getPets
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Successfully retrieved the list of pets.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pets:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Pet"
+                  message:
+                    type: string
+                    example: "Pets listed successfully."
+        "404":
+          description: User not found or no pets found.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "No pets found."
+        "500":
+          description: Internal server error.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Internal server error."
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Pet:
+      type: object
+      properties:
+        id:
+          type: string
+          example: "60d0fe4f5311236168a109ca"
+        name:
+          type: string
+          example: "Buddy"
+        type:
+          type: string
+          enum: [Cat, Dog, Rabbit, Wolf, Alien]
+          example: "Dog"
+        age:
+          type: integer
+          example: 3
+        health:
+          type: integer
+          example: 80
+        happiness:
+          type: integer
+          example: 90
+        hunger:
+          type: integer
+          example: 20
+        energy:
+          type: integer
+          example: 70
+        hygiene:
+          type: integer
+          example: 60
+        owner:
+          type: string
+          description: The ID of the user who owns the pet.
+          example: "60d0fe4f5311236168a109cb"
