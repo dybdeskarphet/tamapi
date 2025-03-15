@@ -159,4 +159,59 @@ const feedPet = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export { getPets, getPet, postPet, feedPet };
+const sleepPet = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+    const pet = await Pet.findById(req.params.id).populate("owner").exec();
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    if (!pet) {
+      res.status(404).json({ message: "No pet at given ID" });
+      return;
+    }
+
+    if (pet.owner._id.toString() == req.userId) {
+      let checker = lowFieldChecker(pet, ["hunger"]);
+
+      if (checker.isLow) {
+        res
+          .status(checker.statusCode)
+          .json({ fields: checker.lowStats, message: checker.message });
+        return;
+      }
+
+      const petSleep = await Pet.findByIdAndUpdate(
+        pet._id,
+        {
+          $inc: { hunger: -5 },
+          $set: {
+            energy: 100,
+          },
+        },
+        { new: true },
+      );
+
+      res.status(200).json({ pet: petSleep, message: `Pet is slept.` });
+      return;
+    } else {
+      res
+        .status(403)
+        .json({ message: "Pet owner ID doesn't match with user ID." });
+      VERBOSE_LOG &&
+        log(
+          IDENTIFIER,
+          `Pet owner ID doesn't match with user ID:\npet.owner._id: ${pet.owner._id}\nuser._id: ${user._id}`,
+        );
+      return;
+    }
+  } catch (error) {
+    VERBOSE_LOG && err(IDENTIFIER, `Error while sleeping pet: ${error}`);
+    res.status(500).json({ message: "Internal server error." });
+  }
+};
+
+export { getPets, getPet, postPet, feedPet, sleepPet };
