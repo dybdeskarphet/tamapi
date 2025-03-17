@@ -1,6 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
 import { err } from "../helpers";
-import { forEachChild } from "typescript";
 
 const IDENTIFIER: string = "model(Pet)";
 
