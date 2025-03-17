@@ -10,6 +10,7 @@ dotenv.config();
 const VERBOSE_LOG = true;
 const IDENTIFIER = "PetsController";
 
+// TODO: Put this checker to a proper place, it shouldn't be inside controller. Maybe find a better way to handle low fields?
 const lowFieldChecker = (pet: IPet, fields: (keyof IPet)[]) => {
   let checkFields: string[] = [];
   for (let field of fields) {
@@ -134,9 +135,19 @@ const feedPet = async (req: Request, res: Response): Promise<void> => {
         return;
       }
 
+      // TODO: Now that you learned how to handle max values, find how to get the current max value of the relevant field
+      // TODO: Do the same for age in the future?
       const petFed = await Pet.findByIdAndUpdate(
         pet._id,
-        { $inc: { hunger: 10, energy: -5, hygiene: -3 } },
+        [
+          {
+            $set: {
+              hunger: { $min: [{ $add: ["$hunger", 10] }, 100] },
+              energy: { $subtract: ["$energy", 5] },
+              hygiene: { $subtract: ["$hygiene", 5] },
+            },
+          },
+        ],
         { new: true },
       );
 
