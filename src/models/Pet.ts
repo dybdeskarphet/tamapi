@@ -21,6 +21,7 @@ interface IPet extends Document {
   energy: number;
   hygiene: number;
   owner: mongoose.Types.ObjectId;
+  history: mongoose.Types.ObjectId[];
 }
 
 const PetSchema = new mongoose.Schema<IPet>({
@@ -94,6 +95,7 @@ const PetSchema = new mongoose.Schema<IPet>({
     },
   },
   owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
+  history: [{ type: mongoose.Schema.Types.ObjectId, ref: "History" }],
 });
 
 // NOTE: I fucking hate this part, it doesn't even work for updates

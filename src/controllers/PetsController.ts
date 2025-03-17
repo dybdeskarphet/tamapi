@@ -5,6 +5,7 @@ import express, { Request, Response } from "express";
 import path from "path";
 import { err, log } from "../helpers";
 import mongoose from "mongoose";
+import { PetHistory } from "../models/PetHistory";
 
 dotenv.config();
 const VERBOSE_LOG = true;
@@ -151,6 +152,13 @@ const feedPet = async (req: Request, res: Response): Promise<void> => {
         { new: true },
       );
 
+      // Add to history
+      const history = new PetHistory({ action: "feed", linkedTo: pet._id });
+      await history.save();
+
+      pet.history.push(history._id as mongoose.Types.ObjectId);
+      await pet.save();
+
       res.status(200).json({ pet: petFed, message: `Pet is fed.` });
       return;
     } else {
@@ -205,6 +213,13 @@ const sleepPet = async (req: Request, res: Response): Promise<void> => {
         },
         { new: true },
       );
+
+      // Add to history
+      const history = new PetHistory({ action: "sleep", linkedTo: pet._id });
+      await history.save();
+
+      pet.history.push(history._id as mongoose.Types.ObjectId);
+      await pet.save();
 
       res.status(200).json({ pet: petSleep, message: `Pet is slept.` });
       return;
