@@ -95,7 +95,7 @@ const PetSchema = new mongoose.Schema<IPet>({
     },
   },
   owner: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "User" },
-  history: [{ type: mongoose.Schema.Types.ObjectId, ref: "History" }],
+  history: [{ type: mongoose.Schema.Types.ObjectId, ref: "PetHistory" }],
 });
 
 // NOTE: I fucking hate this part, it doesn't even work for updates
