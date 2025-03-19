@@ -1,8 +1,7 @@
 import { IPet, Pet } from "../models/Pet";
 import { User } from "../models/User";
 import dotenv from "dotenv";
-import express, { Request, Response } from "express";
-import path from "path";
+import { Request, Response } from "express";
 import { err, log } from "../helpers";
 import mongoose from "mongoose";
 import { PetHistory } from "../models/PetHistory";
@@ -66,7 +65,7 @@ const getPets = async (req: Request, res: Response): Promise<void> => {
 
 const getPet = async (req: Request, res: Response): Promise<void> => {
   try {
-    const pet = await Pet.findById(req.params.id);
+    const pet = await Pet.findById(req.params.id).exec();
 
     if (!pet) {
       res.status(404).json({ message: "No pet at given ID" });
@@ -85,7 +84,7 @@ const getPet = async (req: Request, res: Response): Promise<void> => {
 
 const postPet = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.userId).select("-password");
+    const user = await User.findById(req.userId).select("-password").exec();
 
     if (!user) {
       res.status(404).json({ message: "User not found" });
@@ -114,7 +113,7 @@ const postPet = async (req: Request, res: Response): Promise<void> => {
 
 const feedPet = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.userId).select("-password");
+    const user = await User.findById(req.userId).select("-password").exec();
     const pet = await Pet.findById(req.params.id).populate("owner").exec();
 
     if (!user) {
@@ -151,7 +150,7 @@ const feedPet = async (req: Request, res: Response): Promise<void> => {
           },
         ],
         { new: true },
-      );
+      ).exec();
 
       // Add to history
       const history = new PetHistory({ action: "feed", linkedTo: pet._id });
@@ -181,7 +180,7 @@ const feedPet = async (req: Request, res: Response): Promise<void> => {
 
 const sleepPet = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.userId).select("-password");
+    const user = await User.findById(req.userId).select("-password").exec();
     const pet = await Pet.findById(req.params.id).populate("owner").exec();
 
     if (!user) {
@@ -213,7 +212,7 @@ const sleepPet = async (req: Request, res: Response): Promise<void> => {
           },
         },
         { new: true },
-      );
+      ).exec();
 
       // Add to history
       const history = new PetHistory({ action: "sleep", linkedTo: pet._id });
@@ -244,7 +243,7 @@ const sleepPet = async (req: Request, res: Response): Promise<void> => {
 
 const getPetHistory = async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.userId).select("-password");
+    const user = await User.findById(req.userId).select("-password").exec();
 
     if (!user) {
       res.status(404).json({ message: "User not found" });
