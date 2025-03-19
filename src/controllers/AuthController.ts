@@ -23,7 +23,7 @@ const getAuthRoot = async (req: Request, res: Response): Promise<void> => {
 const postAuthRegister = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, name, username, password } = req.body;
-    const existingUser = await User.findOne({ username });
+    const existingUser = await User.findOne({ username }).exec();
 
     if (existingUser) {
       res.status(409).json({ message: "User already exists" });
@@ -47,7 +47,7 @@ const postAuthLogin = async (req: Request, res: Response): Promise<void> => {
     const { email, password } = req.body;
     // NOTE: Because you set "select: false" in password field,
     // you have to select password explicitly for it to work.
-    const user = await User.findOne({ email }).select("+password");
+    const user = await User.findOne({ email }).select("+password").exec();
 
     if (!user) {
       res.status(401).json({ message: "Invalid credentials." });
@@ -102,7 +102,7 @@ const devAccess = async (req: Request, res: Response): Promise<void> => {
       password = process.env.DEVELOPER_PASSWORD,
       name = process.env.DEVELOPER_NAME;
 
-    let user = await User.findOne({ username }).select("+password");
+    let user = await User.findOne({ username }).select("+password").exec();
 
     if (!user) {
       user = new User({ email, name, username, password });
