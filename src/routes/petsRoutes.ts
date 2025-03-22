@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  deletePet,
   feedPet,
   getPet,
   getPetHistory,
@@ -16,5 +17,6 @@ router.post("/", authMiddleware, postPet);
 router.post("/:id/feed", authMiddleware, feedPet);
 router.post("/:id/sleep", authMiddleware, sleepPet);
 router.get("/:id/history", authMiddleware, getPetHistory);
+router.delete("/:id", authMiddleware, deletePet);
 
 export { router as petsRoute };
