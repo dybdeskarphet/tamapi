@@ -288,4 +288,53 @@ const getPetHistory = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export { getPets, getPet, postPet, feedPet, sleepPet, getPetHistory };
+const deletePet = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.userId).select("-password").exec();
+
+    if (!user) {
+      res.status(404).json({ message: "User not found." });
+      return;
+    }
+
+    const pet = await Pet.findById(req.params.id).exec();
+
+    if (!pet) {
+      res.status(404).json({ message: "Pet not found." });
+      return;
+    }
+
+    if (pet.owner._id.toString() == req.userId) {
+      await Pet.deleteOne({ _id: req.params.id });
+      res.status(200).json({
+        pet,
+        message: "Pet deleted successfully",
+      });
+      return;
+    } else {
+      res
+        .status(403)
+        .json({ message: "Pet owner ID doesn't match with user ID." });
+      VERBOSE_LOG &&
+        log(
+          IDENTIFIER,
+          `Pet owner ID doesn't match with user ID:\npet.owner._id: ${pet.owner._id}\nuser._id: ${user._id}`,
+        );
+      return;
+    }
+  } catch (error) {
+    VERBOSE_LOG && err(IDENTIFIER, `Error deleting the pet: ${error}`);
+    res.status(500).json({ message: "Internal server error." });
+    return;
+  }
+};
+
+export {
+  getPets,
+  getPet,
+  postPet,
+  feedPet,
+  sleepPet,
+  getPetHistory,
+  deletePet,
+};
