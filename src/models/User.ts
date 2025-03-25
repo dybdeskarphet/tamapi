@@ -1,19 +1,10 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
-import { err } from "../helpers";
+import { UserTypes } from "../types/userTypes";
 
 const IDENTIFIER: string = "model(User)";
 
-interface IUser extends Document {
-  email: string;
-  name: string;
-  username: string;
-  password: string;
-  pets: mongoose.Types.ObjectId[];
-  comparePassword(candidatePassword: string): Promise<boolean>;
-}
-
-const UserSchema = new mongoose.Schema<IUser>({
+const UserSchema = new mongoose.Schema<UserTypes.IUser>({
   email: { type: String, required: true, unique: true },
   name: { type: String, required: true, unique: false },
   username: { type: String, required: true, unique: true },
@@ -22,7 +13,7 @@ const UserSchema = new mongoose.Schema<IUser>({
 });
 
 UserSchema.pre("save", async function (next) {
-  const user = this as IUser;
+  const user = this as UserTypes.IUser;
   if (!this.isModified("password")) return next();
 
   try {
@@ -44,4 +35,4 @@ UserSchema.methods.comparePassword = async function (
 
 const User = mongoose.model("User", UserSchema);
 
-export { User, IUser };
+export { User };
