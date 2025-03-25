@@ -1,14 +1,9 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { PetTypes } from "../types/petTypes";
 
 const IDENTIFIER: string = "model(PetHistory)";
 
-interface IPetHistory extends Document {
-  timestamp: Date;
-  action: string;
-  linkedTo: mongoose.Types.ObjectId;
-}
-
-const PetHistorySchema = new mongoose.Schema<IPetHistory>({
+const PetHistorySchema = new mongoose.Schema<PetTypes.IPetHistory>({
   timestamp: { type: Date, default: Date.now },
   action: { type: String, required: true },
   linkedTo: {
@@ -20,4 +15,4 @@ const PetHistorySchema = new mongoose.Schema<IPetHistory>({
 
 const PetHistory = mongoose.model("PetHistory", PetHistorySchema);
 
-export { PetHistory, IPetHistory };
+export { PetHistory };

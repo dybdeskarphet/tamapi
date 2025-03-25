@@ -1,29 +1,9 @@
 import mongoose, { Document, Schema } from "mongoose";
+import { PetTypes } from "../types/petTypes";
 
 const IDENTIFIER: string = "model(Pet)";
 
-enum PetType {
-  Cat = "Cat",
-  Dog = "Dog",
-  Rabbit = "Rabbit",
-  Wolf = "Wolf",
-  Alien = "Alien",
-}
-
-interface IPet extends Document {
-  name: string;
-  type: PetType;
-  age: number;
-  health: number;
-  happiness: number;
-  hunger: number;
-  energy: number;
-  hygiene: number;
-  owner: mongoose.Types.ObjectId;
-  history: mongoose.Types.ObjectId[];
-}
-
-const PetSchema = new mongoose.Schema<IPet>({
+const PetSchema = new mongoose.Schema<PetTypes.IPet>({
   name: {
     type: String,
     required: true,
@@ -31,7 +11,7 @@ const PetSchema = new mongoose.Schema<IPet>({
   },
   type: {
     type: String,
-    enum: Object.values(PetType),
+    enum: Object.values(PetTypes.PetForm),
     required: true,
   },
   age: {
@@ -97,36 +77,6 @@ const PetSchema = new mongoose.Schema<IPet>({
   history: [{ type: mongoose.Schema.Types.ObjectId, ref: "PetHistory" }],
 });
 
-// NOTE: I fucking hate this part, it doesn't even work for updates
-PetSchema.pre("save", async function (next) {
-  try {
-    const pet = this as IPet;
-
-    // WARN: This is a workaround and I want to fix this type issue using a dynamic aprroach
-    // For now, please just add the fields that you want to clamp both to the array and the type definition.
-    type fieldsToClampType = (keyof Pick<
-      IPet,
-      "health" | "happiness" | "hunger" | "energy" | "hygiene"
-    >)[];
-
-    const fieldsToClamp: fieldsToClampType = [
-
-      "health",
-      "happiness",
-      "hunger",
-      "energy",
-      "hygiene",
-    ];
-
-    for (const field of fieldsToClamp) {
-      if (pet.isModified(field))
-        pet[field] = Math.min(100, Math.max(0, pet[field]));
-    }
-    next();
-  } catch (error) {
-    next(error as Error);
-  }
-});
-
 const Pet = mongoose.model("Pet", PetSchema);
-export { Pet, IPet };
+
+export { Pet };
