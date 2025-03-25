@@ -1,10 +1,9 @@
 import { User } from "../models/User";
-import { IPet, Pet } from "../models/Pet";
+import { Pet } from "../models/Pet";
 import { ServiceError } from "../errors/ServiceError";
-import { err } from "../helpers";
 import mongoose from "mongoose";
-import { InvalidatedProjectKind } from "typescript";
 import { PetHistory } from "../models/PetHistory";
+import { PetTypes } from "../types/petTypes";
 
 const getPetsWithUser = async (userId: string | undefined) => {
   if (!userId || typeof userId !== "string") {
@@ -69,18 +68,13 @@ const createPet = async (
   return pet;
 };
 
-type statusKeys = keyof Pick<
-  IPet,
-  "health" | "happiness" | "hunger" | "energy" | "hygiene"
->;
-
 // NOTE: Use this function only for the fields that have 0-100 min-max values.
 // This is the most amazing thing i've ever written in my entire life (as of March 2025)
 const updatePetStatus = async (
   userId: string | undefined,
   petId: string | undefined,
   actionName: string,
-  fields: Partial<Record<statusKeys, number>>,
+  fields: Partial<Record<PetTypes.statusKeys, number>>,
 ) => {
   if (!userId || typeof userId !== "string") {
     throw new ServiceError(400, "Invalid user format.");
@@ -91,19 +85,29 @@ const updatePetStatus = async (
   }
 
   const user = await User.findById(userId).select("-password").exec();
-  const pet = await Pet.findById(petId).populate("owner").exec();
 
   if (!user) {
     throw new ServiceError(404, "User not found.");
   }
 
+  const pet = await Pet.findById(petId).populate("owner").exec();
+
   if (!pet) {
     throw new ServiceError(404, "No pet at given ID");
   }
 
+  if (pet.owner._id.toString() !== userId) {
+    throw new ServiceError(
+      401,
+      "You're not allowed to perform actions on this pet.",
+    );
+  }
+
   let invalidFields = Object.entries(fields)
     .filter(([field]) => {
-      return !(field in pet) || typeof pet[field as keyof IPet] === "string";
+      return (
+        !(field in pet) || typeof pet[field as keyof PetTypes.IPet] === "string"
+      );
     })
     .map(([field]) => field);
 
@@ -115,24 +119,25 @@ const updatePetStatus = async (
   }
 
   let lowFields: string[] = Object.entries(fields)
-    .filter(([field, value]) => pet[field as keyof IPet] + value < 0)
+    .filter(([field, value]) => pet[field as PetTypes.statusKeys] + value < 0)
     .map(([key]) => key);
 
   if (lowFields.length !== 0) {
     throw new ServiceError(
       401,
-      `Some fields are too low to perform this action: ${lowFields}`,
+      `Some fields are too low to perform this action: ${lowFields.join(", ")}`,
     );
   }
 
   let simplifedPet = {
     _id: pet._id,
     name: pet.name,
-  } as Record<statusKeys, number> & { _id: unknown; name: string };
+  } as Record<PetTypes.statusKeys, number> & { _id: unknown; name: string };
 
   Object.entries(fields).forEach(([field, value]) => {
-    pet[field as statusKeys] = Math.min(100, pet[field as statusKeys] + value);
-    simplifedPet[field as statusKeys] = pet[field as statusKeys];
+    const currentField = field as PetTypes.statusKeys;
+    pet[currentField] = Math.min(100, pet[currentField] + value);
+    simplifedPet[currentField] = pet[currentField];
   });
 
   const history = new PetHistory({ action: actionName, linkedTo: pet._id });
