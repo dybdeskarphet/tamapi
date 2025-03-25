@@ -1,5 +1,4 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { err } from "../helpers";
 
 const IDENTIFIER: string = "model(Pet)";
 
@@ -111,6 +110,7 @@ PetSchema.pre("save", async function (next) {
     >)[];
 
     const fieldsToClamp: fieldsToClampType = [
+
       "health",
       "happiness",
       "hunger",
