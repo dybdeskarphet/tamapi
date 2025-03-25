@@ -1,10 +1,8 @@
-import { IPet, Pet } from "../models/Pet";
+import { Pet } from "../models/Pet";
 import { User } from "../models/User";
 import dotenv from "dotenv";
 import { Request, Response } from "express";
 import { err, log } from "../helpers";
-import mongoose from "mongoose";
-import { PetHistory } from "../models/PetHistory";
 import {
   createPet,
   getPetById,
