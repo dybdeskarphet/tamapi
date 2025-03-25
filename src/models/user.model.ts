@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 import bcrypt from "bcryptjs";
-import { UserTypes } from "../types/userTypes";
+import { UserTypes } from "../types/user.types";
 
 const IDENTIFIER: string = "model(User)";
 

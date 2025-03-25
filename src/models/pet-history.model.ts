@@ -1,5 +1,5 @@
 import mongoose, { Document, Schema } from "mongoose";
-import { PetTypes } from "../types/petTypes";
+import { PetTypes } from "../types/pet.types";
 
 const IDENTIFIER: string = "model(PetHistory)";
 

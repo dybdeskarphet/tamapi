@@ -2,11 +2,11 @@ import dotenv from "dotenv";
 import express, { Express } from "express";
 import ip from "ip";
 import { ok } from "./helpers";
-import { authRoute } from "./routes/authRoutes";
+import { authRoute } from "./routes/auth.routes";
 import YAML from "yamljs";
 import swaggerUi from "swagger-ui-express";
-import { rootController } from "./controllers/RootController";
-import { petsRoute } from "./routes/petsRoutes";
+import { rootController } from "./controllers/root.controller";
+import { petsRoute } from "./routes/pets.routes";
 import { connectDatabase } from "./db";
 import path from "path";
 

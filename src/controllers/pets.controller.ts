@@ -1,5 +1,5 @@
-import { Pet } from "../models/Pet";
-import { User } from "../models/User";
+import { Pet } from "../models/pet.model";
+import { User } from "../models/user.model";
 import dotenv from "dotenv";
 import { Request, Response } from "express";
 import { err, log } from "../helpers";
@@ -8,8 +8,8 @@ import {
   getPetById,
   getPetsWithUser,
   updatePetStatus,
-} from "../services/petsService";
-import { ServiceError } from "../errors/ServiceError";
+} from "../services/pets.service";
+import { ServiceError } from "../errors/service.error";
 
 dotenv.config();
 const VERBOSE_LOG = true;

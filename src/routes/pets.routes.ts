@@ -8,7 +8,7 @@ import {
   postPet,
   sleepPet,
 } from "../controllers/PetsController";
-import { authMiddleware } from "../middlewares/authMiddleware";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const router = express.Router();
 router.get("/", authMiddleware, getPets);

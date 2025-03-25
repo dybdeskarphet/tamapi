@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import { err, log } from "../helpers";
 import dotenv from "dotenv";
-import { User } from "../models/User";
+import { User } from "../models/user.model";
 import jwt from "jsonwebtoken";
 
 dotenv.config();

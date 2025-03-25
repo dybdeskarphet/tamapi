@@ -1,9 +1,9 @@
-import { User } from "../models/User";
-import { Pet } from "../models/Pet";
-import { ServiceError } from "../errors/ServiceError";
+import { User } from "../models/user.model";
+import { Pet } from "../models/pet.model";
+import { ServiceError } from "../errors/service.error";
 import mongoose from "mongoose";
-import { PetHistory } from "../models/PetHistory";
-import { PetTypes } from "../types/petTypes";
+import { PetHistory } from "../models/pet-history.model";
+import { PetTypes } from "../types/pet.types";
 
 const getPetsWithUser = async (userId: string | undefined) => {
   if (!userId || typeof userId !== "string") {

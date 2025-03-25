@@ -4,7 +4,7 @@ import {
   getAuthRoot,
   postAuthLogin,
   postAuthRegister,
-} from "../controllers/AuthController";
+} from "../controllers/auth.controller";
 
 const router = express.Router();
 router.get("/", getAuthRoot);
