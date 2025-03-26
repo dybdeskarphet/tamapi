@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { err, log } from "../helpers";
 import {
   createPetService,
+  getPetHistoryService,
   getPetService,
   listPetsService,
   updatePetStatusService,
@@ -133,47 +134,21 @@ const getPetHistoryController = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const user = await User.findById(req.userId).select("-password").exec();
+    const getHistoryStatus = await getPetHistoryService(
+      req.userId,
+      req.params.id,
+    );
 
-    if (!user) {
-      res.status(404).json({ message: "User not found" });
-      return;
-    }
-
-    const pet = await Pet.findById(req.params.id)
-      .populate("owner")
-      .populate("history")
-      .exec();
-
-    if (!pet) {
-      res.status(404).json({ message: "No pet found for the given ID." });
-      return;
-    }
-
-    if (!pet.history || pet.history.length === 0) {
-      res.status(404).json({ message: "No history found for this pet ID." });
-      return;
-    }
-
-    if (pet.owner._id.toString() == req.userId) {
-      res
-        .status(200)
-        .json({ history: pet.history, message: "Pet history is listed." });
-      return;
-    } else {
-      res
-        .status(403)
-        .json({ message: "Pet owner ID doesn't match with user ID." });
-      VERBOSE_LOG &&
-        log(
-          IDENTIFIER,
-          `Pet owner ID doesn't match with user ID:\npet.owner._id: ${pet.owner._id}\nuser._id: ${user._id}`,
-        );
-      return;
-    }
+    res
+      .status(200)
+      .json({ pet: getHistoryStatus, message: "Pet history is listed." });
+    return;
   } catch (error) {
-    VERBOSE_LOG && err(IDENTIFIER, `Error getting the pet history: ${error}`);
-    res.status(500).json({ message: "Internal server error." });
+    if (error instanceof ServiceError) {
+      res.status(error.status).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Internal server error." });
+    }
     return;
   }
 };
