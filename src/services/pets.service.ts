@@ -4,6 +4,7 @@ import { ServiceError } from "../errors/service.error";
 import mongoose from "mongoose";
 import { PetHistory } from "../models/pet-history.model";
 import { PetTypes } from "../types/pet.types";
+import { err } from "../helpers";
 
 const listPetsService = async (userId: string | undefined) => {
   if (!userId || typeof userId !== "string") {
@@ -151,9 +152,51 @@ const updatePetStatusService = async (
   };
 };
 
+const getPetHistoryService = async (
+  userId: string | undefined,
+  petId: string | undefined,
+) => {
+  if (!userId || typeof userId !== "string") {
+    throw new ServiceError(400, "Invalid user format.");
+  }
+
+  if (!petId || !mongoose.Types.ObjectId.isValid(petId)) {
+    throw new ServiceError(400, "Invalid Pet ID format.");
+  }
+
+  const user = await User.findById(userId).select("-password").exec();
+
+  if (!user) {
+    throw new ServiceError(404, "User not found.");
+  }
+
+  const pet = await Pet.findById(petId)
+    .populate("owner")
+    .populate("history")
+    .exec();
+
+  if (!pet) {
+    throw new ServiceError(404, "No pet at given ID");
+  }
+
+  if (pet.owner._id.toString() !== userId) {
+    throw new ServiceError(
+      401,
+      "You're not allowed to perform actions on this pet.",
+    );
+  }
+
+  return {
+    _id: pet._id,
+    name: pet.name,
+    history: pet.history,
+  };
+};
+
 export {
   listPetsService,
   getPetService,
   createPetService,
   updatePetStatusService,
+  getPetHistoryService,
 };
