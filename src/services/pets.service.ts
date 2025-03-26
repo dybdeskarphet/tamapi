@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import { PetHistory } from "../models/pet-history.model";
 import { PetTypes } from "../types/pet.types";
 
-const getPetsWithUser = async (userId: string | undefined) => {
+const listPetsService = async (userId: string | undefined) => {
   if (!userId || typeof userId !== "string") {
     throw new ServiceError(401, "Invalid user format.");
   }
@@ -26,7 +26,7 @@ const getPetsWithUser = async (userId: string | undefined) => {
   return user.pets;
 };
 
-const getPetById = async (petId: string | undefined) => {
+const getPetService = async (petId: string | undefined) => {
   if (!petId || !mongoose.Types.ObjectId.isValid(petId)) {
     throw new ServiceError(400, "Invalid Pet ID format");
   }
@@ -40,7 +40,7 @@ const getPetById = async (petId: string | undefined) => {
   return pet;
 };
 
-const createPet = async (
+const createPetService = async (
   userId: string | undefined,
   name: string,
   type: string,
@@ -70,7 +70,7 @@ const createPet = async (
 
 // NOTE: Use this function only for the fields that have 0-100 min-max values.
 // This is the most amazing thing i've ever written in my entire life (as of March 2025)
-const updatePetStatus = async (
+const updatePetStatusService = async (
   userId: string | undefined,
   petId: string | undefined,
   actionName: string,
@@ -151,4 +151,9 @@ const updatePetStatus = async (
   };
 };
 
-export { getPetsWithUser, getPetById, createPet, updatePetStatus };
+export {
+  listPetsService,
+  getPetService,
+  createPetService,
+  updatePetStatusService,
+};

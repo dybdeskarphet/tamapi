@@ -4,10 +4,10 @@ import dotenv from "dotenv";
 import { Request, Response } from "express";
 import { err, log } from "../helpers";
 import {
-  createPet,
-  getPetById,
-  getPetsWithUser,
-  updatePetStatus,
+  createPetService,
+  getPetService,
+  listPetsService,
+  updatePetStatusService,
 } from "../services/pets.service";
 import { ServiceError } from "../errors/service.error";
 
@@ -17,9 +17,12 @@ const IDENTIFIER = "PetsController";
 
 // TODO: Put this checker to a proper place, it shouldn't be inside controller. Maybe find a better way to handle low fields?
 
-const getPets = async (req: Request, res: Response): Promise<void> => {
+const getPetsController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
-    const pets = await getPetsWithUser(req.userId);
+    const pets = await listPetsService(req.userId);
     res.status(200).json({ pets, message: "Pets listed successfully." });
     return;
   } catch (error) {
@@ -32,9 +35,9 @@ const getPets = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const getPet = async (req: Request, res: Response): Promise<void> => {
+const getPetController = async (req: Request, res: Response): Promise<void> => {
   try {
-    const pet = await getPetById(req.params.id);
+    const pet = await getPetService(req.params.id);
 
     res
       .status(200)
@@ -50,9 +53,16 @@ const getPet = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const postPet = async (req: Request, res: Response): Promise<void> => {
+const postPetController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
-    const pet = await createPet(req.userId, req.body.name, req.body.type);
+    const pet = await createPetService(
+      req.userId,
+      req.body.name,
+      req.body.type,
+    );
     res.status(201).json({ pet, message: "Pet created." });
   } catch (error) {
     if (error instanceof ServiceError) {
@@ -64,9 +74,12 @@ const postPet = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const feedPet = async (req: Request, res: Response): Promise<void> => {
+const feedPetController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
-    const updateStatus = await updatePetStatus(
+    const updateStatus = await updatePetStatusService(
       req.userId,
       req.params.id,
       "feed",
@@ -88,9 +101,12 @@ const feedPet = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const sleepPet = async (req: Request, res: Response): Promise<void> => {
+const sleepPetController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
-    const updateStatus = await updatePetStatus(
+    const updateStatus = await updatePetStatusService(
       req.userId,
       req.params.id,
       "sleep",
@@ -112,7 +128,10 @@ const sleepPet = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const getPetHistory = async (req: Request, res: Response): Promise<void> => {
+const getPetHistoryController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const user = await User.findById(req.userId).select("-password").exec();
 
@@ -159,7 +178,10 @@ const getPetHistory = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-const deletePet = async (req: Request, res: Response): Promise<void> => {
+const deletePetController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
   try {
     const user = await User.findById(req.userId).select("-password").exec();
 
@@ -201,11 +223,11 @@ const deletePet = async (req: Request, res: Response): Promise<void> => {
 };
 
 export {
-  getPets,
-  getPet,
-  postPet,
-  feedPet,
-  getPetHistory,
-  deletePet,
-  sleepPet,
+  getPetsController,
+  getPetController,
+  postPetController,
+  feedPetController,
+  getPetHistoryController,
+  deletePetController,
+  sleepPetController,
 };
