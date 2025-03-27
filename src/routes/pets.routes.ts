@@ -10,7 +10,6 @@ import {
 } from "../controllers/pets.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import petActions from "../config/pet-actions.json";
-import fs from "fs";
 
 const router = express.Router();
 router.get("/", authMiddleware, getPetsController);

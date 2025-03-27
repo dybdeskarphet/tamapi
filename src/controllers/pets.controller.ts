@@ -1,8 +1,5 @@
-import { Pet } from "../models/pet.model";
-import { User } from "../models/user.model";
 import dotenv from "dotenv";
 import { Request, Response } from "express";
-import { err, log } from "../helpers";
 import {
   checkOwnershipService,
   checkUserService,
@@ -17,8 +14,7 @@ import { ServiceError } from "../errors/service.error";
 import { PetTypes } from "../types/pet.types";
 
 dotenv.config();
-const VERBOSE_LOG = true;
-const IDENTIFIER = "PetsController";
+const IDENTIFIER = "pets.controller";
 
 const getPetsController = async (
   req: Request,
