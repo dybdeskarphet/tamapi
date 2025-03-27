@@ -194,15 +194,22 @@ const deletePetService = async (
 const updateModifiableFieldsService = async (
   userId: string | undefined,
   petId: string | undefined,
-  fields: Partial<Record<PetTypes.modifiableKeys, string>>,
+  fields: Partial<Record<PetTypes.modifiableKeys, unknown>>,
 ) => {
   const pet = await getPetService(petId);
   await checkUserService(userId);
   await checkOwnershipService(userId, pet.owner._id);
 
   const validFields = ["name"];
-  const invalidFields = Object.keys(fields).filter(
-    (key) => !validFields.includes(key),
+
+  const invalidFields = Object.entries(fields).filter(
+    ([field, value]) => !validFields.includes(field as PetTypes.modifiableKeys),
+  );
+
+  // TODO: I know, this is very hacky and only applies for the "name" field, but we have to check req.body values somehow. Fix it when you want to.
+  // Probably needs a better (and more complex) type checking.
+  const invalidValues = Object.values(fields).filter(
+    (value) => typeof value !== "string",
   );
 
   if (invalidFields.length !== 0) {
@@ -212,12 +219,21 @@ const updateModifiableFieldsService = async (
     );
   }
 
+  if (invalidValues.length !== 0) {
+    throw new ServiceError(
+      400,
+      `You cannot update fields with invalid values: ${invalidValues}`,
+    );
+  }
+
   let simplifedPet = {} as Record<PetTypes.modifiableKeys, string>;
 
   Object.entries(fields).forEach(([field, value]) => {
     const currentField = field as PetTypes.modifiableKeys;
-    pet[currentField] = value;
-    simplifedPet[currentField] = pet[currentField];
+    if (typeof value === "string") {
+      pet[currentField] = value;
+      simplifedPet[currentField] = pet[currentField];
+    }
   });
 
   await pet.save();
