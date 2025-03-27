@@ -27,6 +27,11 @@ export namespace PetTypes {
     "health" | "happiness" | "hunger" | "energy" | "hygiene"
   >;
 
+  export type modifiableKeys = keyof Pick<
+    IPet,
+    "name" 
+  >;
+
   export interface IPetHistory extends Document {
     timestamp: Date;
     action: string;

@@ -5,7 +5,8 @@ import {
   getPetHistoryController,
   getPetsController,
   postPetController,
-  postPetStatusController,
+  postPetActionController,
+  patchPetController,
 } from "../controllers/pets.controller";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import petActions from "../config/pet-actions.json";
@@ -20,8 +21,9 @@ router.delete("/:id", authMiddleware, deletePetController);
 // Check config/pet-actions.json file
 Object.entries(petActions).forEach(([action, updates]) => {
   router.post(`/:id/${action}`, authMiddleware, (req, res) =>
-    postPetStatusController(req, res, action, updates),
+    postPetActionController(req, res, action, updates),
   );
 });
+router.patch("/:id", authMiddleware, patchPetController);
 
 export { router as petsRoute };

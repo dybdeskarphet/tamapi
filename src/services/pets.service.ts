@@ -74,6 +74,26 @@ const checkUserService = async (userId: string | undefined) => {
   }
 };
 
+const checkInvalidFieldsService = async (
+  pet: PetTypes.IPet,
+  fields:
+    | Partial<Record<PetTypes.statusKeys, number>>
+    | Partial<Record<PetTypes.modifiableKeys, string>>,
+) => {
+  let invalidFields = Object.entries(fields)
+    .filter(([field]) => {
+      return !(field in pet);
+    })
+    .map(([field]) => field);
+
+  if (invalidFields.length !== 0) {
+    throw new ServiceError(
+      400,
+      `You cannot update these fields: ${invalidFields}`,
+    );
+  }
+};
+
 const createPetService = async (
   userId: string | undefined,
   name: string,
@@ -105,6 +125,7 @@ const updatePetStatusService = async (
   const pet = await getPetService(petId);
   await checkUserService(userId);
   await checkOwnershipService(userId, pet.owner._id);
+  await checkInvalidFieldsService(pet, fields);
 
   let invalidFields = Object.entries(fields)
     .filter(([field]) => {
@@ -170,6 +191,39 @@ const deletePetService = async (
   return { pet };
 };
 
+const updateModifiableFieldsService = async (
+  userId: string | undefined,
+  petId: string | undefined,
+  fields: Partial<Record<PetTypes.modifiableKeys, string>>,
+) => {
+  const pet = await getPetService(petId);
+  await checkUserService(userId);
+  await checkOwnershipService(userId, pet.owner._id);
+
+  const validFields = ["name"];
+  const invalidFields = Object.keys(fields).filter(
+    (key) => !validFields.includes(key),
+  );
+
+  if (invalidFields.length !== 0) {
+    throw new ServiceError(
+      400,
+      `You cannot update these fields: ${invalidFields}`,
+    );
+  }
+
+  let simplifedPet = {} as Record<PetTypes.modifiableKeys, string>;
+
+  Object.entries(fields).forEach(([field, value]) => {
+    const currentField = field as PetTypes.modifiableKeys;
+    pet[currentField] = value;
+    simplifedPet[currentField] = pet[currentField];
+  });
+
+  await pet.save();
+  return simplifedPet;
+};
+
 export {
   getPetService,
   createPetService,
@@ -178,4 +232,5 @@ export {
   deletePetService,
   getUserService,
   checkUserService,
+  updateModifiableFieldsService,
 };

@@ -10,6 +10,7 @@ import {
   deletePetService,
   getPetService,
   getUserService,
+  updateModifiableFieldsService,
   updatePetStatusService,
 } from "../services/pets.service";
 import { ServiceError } from "../errors/service.error";
@@ -79,7 +80,7 @@ const postPetController = async (
   }
 };
 
-const postPetStatusController = async (
+const postPetActionController = async (
   req: Request,
   res: Response,
   action: string,
@@ -155,11 +156,34 @@ const deletePetController = async (
   }
 };
 
+const patchPetController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  try {
+    const pet = await updateModifiableFieldsService(
+      req.userId,
+      req.params.id,
+      req.body,
+    );
+    res.status(200).json({ pet, messsage: `Pet updated.` });
+    return;
+  } catch (error) {
+    if (error instanceof ServiceError) {
+      res.status(error.status).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Internal server error." });
+    }
+    return;
+  }
+};
+
 export {
   getPetsController,
   getPetController,
   postPetController,
-  postPetStatusController,
+  postPetActionController,
   getPetHistoryController,
   deletePetController,
+  patchPetController,
 };
