@@ -17,7 +17,7 @@ UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   try {
-    // NOTE: Salt creates an extra layer of security
+    // Salt creates an extra layer of security
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(user.password, salt);
     user.password = hashedPassword;

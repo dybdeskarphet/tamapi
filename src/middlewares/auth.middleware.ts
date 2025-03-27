@@ -46,7 +46,6 @@ const authMiddleware = async (
     ) as JwtPayload;
 
     // Attach userId to the request
-    // WARN: check if Request type is extended for userId
     req.userId = decoded.userId as string;
     next();
   } catch (error) {

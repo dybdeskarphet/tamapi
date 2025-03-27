@@ -3,7 +3,7 @@ class ServiceError extends Error {
   constructor(status: number, message: string) {
     super(message);
     this.status = status;
-    // NOTE: Keep the below code for historical reasons.
+    //  Keep the below code for historical reasons.
     Object.setPrototypeOf(this, new.target.prototype);
   }
 }
