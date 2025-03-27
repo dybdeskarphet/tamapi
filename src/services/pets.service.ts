@@ -1,38 +1,39 @@
 import { User } from "../models/user.model";
 import { Pet } from "../models/pet.model";
 import { ServiceError } from "../errors/service.error";
-import mongoose from "mongoose";
+import mongoose, { ObjectId } from "mongoose";
 import { PetHistory } from "../models/pet-history.model";
 import { PetTypes } from "../types/pet.types";
-import { err } from "../helpers";
+import { log } from "../helpers";
 
-const listPetsService = async (userId: string | undefined) => {
+const getUserService = async (
+  userId: string | undefined,
+  password: boolean,
+) => {
   if (!userId || typeof userId !== "string") {
-    throw new ServiceError(401, "Invalid user format.");
+    throw new ServiceError(400, "Invalid user format.");
   }
 
-  const user = await User.findById(userId)
-    .select("-password")
-    .populate("pets")
-    .exec();
+  let passwordString = password ? "+password" : "-password";
+
+  const user = await User.findById(userId).select(passwordString).exec();
 
   if (!user) {
     throw new ServiceError(404, "User not found.");
   }
 
-  if (user.pets.length === 0) {
-    throw new ServiceError(404, "No pets found.");
-  }
-
-  return user.pets;
+  return user;
 };
 
-const getPetService = async (petId: string | undefined) => {
+const getPetService = async (
+  petId: string | undefined,
+  populatePet: string[] = ["owner"],
+) => {
   if (!petId || !mongoose.Types.ObjectId.isValid(petId)) {
-    throw new ServiceError(400, "Invalid Pet ID format");
+    throw new ServiceError(400, "Invalid Pet ID format.");
   }
 
-  const pet = await Pet.findById(petId).exec();
+  const pet = await Pet.findById(petId).populate(populatePet.join(" ")).exec();
 
   if (!pet) {
     throw new ServiceError(404, "No pet at given ID");
@@ -41,20 +42,44 @@ const getPetService = async (petId: string | undefined) => {
   return pet;
 };
 
+const checkOwnershipService = async (
+  userId: string | undefined,
+  petOwnerId: mongoose.Types.ObjectId | undefined,
+) => {
+  if (!userId || typeof userId !== "string") {
+    throw new ServiceError(400, "Invalid user format.");
+  }
+
+  if (!petOwnerId) {
+    throw new ServiceError(400, "Invalid pet owner ID format.");
+  }
+
+  if (petOwnerId.toString() !== userId) {
+    throw new ServiceError(
+      401,
+      "You're not allowed to perform actions on this pet.",
+    );
+  }
+};
+
+const checkUserService = async (userId: string | undefined) => {
+  if (!userId || typeof userId !== "string") {
+    throw new ServiceError(400, "Invalid user format.");
+  }
+
+  const user = await User.findById(userId).exec();
+
+  if (!user) {
+    throw new ServiceError(404, "User not found.");
+  }
+};
+
 const createPetService = async (
   userId: string | undefined,
   name: string,
   type: string,
 ) => {
-  if (!userId || typeof userId !== "string") {
-    throw new ServiceError(401, "Invalid user format.");
-  }
-
-  const user = await User.findById(userId).select("-password").exec();
-
-  if (!user) {
-    throw new ServiceError(404, "User not found.");
-  }
+  const user = await getUserService(userId, false);
 
   if (!name || !type) {
     throw new ServiceError(400, "Name and type is required.");
@@ -77,32 +102,9 @@ const updatePetStatusService = async (
   actionName: string,
   fields: Partial<Record<PetTypes.statusKeys, number>>,
 ) => {
-  if (!userId || typeof userId !== "string") {
-    throw new ServiceError(400, "Invalid user format.");
-  }
-
-  if (!petId || !mongoose.Types.ObjectId.isValid(petId)) {
-    throw new ServiceError(400, "Invalid Pet ID format.");
-  }
-
-  const user = await User.findById(userId).select("-password").exec();
-
-  if (!user) {
-    throw new ServiceError(404, "User not found.");
-  }
-
-  const pet = await Pet.findById(petId).populate("owner").exec();
-
-  if (!pet) {
-    throw new ServiceError(404, "No pet at given ID");
-  }
-
-  if (pet.owner._id.toString() !== userId) {
-    throw new ServiceError(
-      401,
-      "You're not allowed to perform actions on this pet.",
-    );
-  }
+  const pet = await getPetService(petId);
+  await checkUserService(userId);
+  await checkOwnershipService(userId, pet.owner._id);
 
   let invalidFields = Object.entries(fields)
     .filter(([field]) => {
@@ -152,51 +154,28 @@ const updatePetStatusService = async (
   };
 };
 
-const getPetHistoryService = async (
+const deletePetService = async (
   userId: string | undefined,
   petId: string | undefined,
 ) => {
-  if (!userId || typeof userId !== "string") {
-    throw new ServiceError(400, "Invalid user format.");
-  }
+  const pet = await getPetService(petId);
+  await checkUserService(userId);
+  await checkOwnershipService(userId, pet.owner._id);
 
-  if (!petId || !mongoose.Types.ObjectId.isValid(petId)) {
-    throw new ServiceError(400, "Invalid Pet ID format.");
-  }
+  await Pet.deleteOne({ _id: petId });
+  await User.findByIdAndUpdate(userId, {
+    $pull: { pets: petId },
+  });
 
-  const user = await User.findById(userId).select("-password").exec();
-
-  if (!user) {
-    throw new ServiceError(404, "User not found.");
-  }
-
-  const pet = await Pet.findById(petId)
-    .populate("owner")
-    .populate("history")
-    .exec();
-
-  if (!pet) {
-    throw new ServiceError(404, "No pet at given ID");
-  }
-
-  if (pet.owner._id.toString() !== userId) {
-    throw new ServiceError(
-      401,
-      "You're not allowed to perform actions on this pet.",
-    );
-  }
-
-  return {
-    _id: pet._id,
-    name: pet.name,
-    history: pet.history,
-  };
+  return { pet };
 };
 
 export {
-  listPetsService,
   getPetService,
   createPetService,
   updatePetStatusService,
-  getPetHistoryService,
+  checkOwnershipService,
+  deletePetService,
+  getUserService,
+  checkUserService,
 };
