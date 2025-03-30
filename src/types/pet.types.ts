@@ -20,6 +20,10 @@ export namespace PetTypes {
     hygiene: number;
     owner: mongoose.Types.ObjectId;
     history: mongoose.Types.ObjectId[];
+    value: any;
+    fieldName: string;
+    isGivenCategory(category: string, fieldName: string): Promise<boolean>;
+    isValidFieldType(value: any, fieldName: string): Promise<boolean>;
   }
 
   export type statusKeys = keyof Pick<
@@ -27,10 +31,7 @@ export namespace PetTypes {
     "health" | "happiness" | "hunger" | "energy" | "hygiene"
   >;
 
-  export type modifiableKeys = keyof Pick<
-    IPet,
-    "name" 
-  >;
+  export type patchableKeys = keyof Pick<IPet, "name">;
 
   export interface IPetHistory extends Document {
     timestamp: Date;

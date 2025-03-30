@@ -74,26 +74,6 @@ const checkUserService = async (userId: string | undefined) => {
   }
 };
 
-const checkInvalidFieldsService = async (
-  pet: PetTypes.IPet,
-  fields:
-    | Partial<Record<PetTypes.statusKeys, number>>
-    | Partial<Record<PetTypes.modifiableKeys, string>>,
-) => {
-  let invalidFields = Object.entries(fields)
-    .filter(([field]) => {
-      return !(field in pet);
-    })
-    .map(([field]) => field);
-
-  if (invalidFields.length !== 0) {
-    throw new ServiceError(
-      400,
-      `You cannot update these fields: ${invalidFields}`,
-    );
-  }
-};
-
 const createPetService = async (
   userId: string | undefined,
   name: string,
@@ -125,15 +105,16 @@ const updatePetStatusService = async (
   const pet = await getPetService(petId);
   await checkUserService(userId);
   await checkOwnershipService(userId, pet.owner._id);
-  await checkInvalidFieldsService(pet, fields);
 
-  let invalidFields = Object.entries(fields)
-    .filter(([field]) => {
-      return (
-        !(field in pet) || typeof pet[field as keyof PetTypes.IPet] === "string"
-      );
-    })
-    .map(([field]) => field);
+  // Promise all used here to convert the array to a single Promise
+  // If it is not given, service will continue without checking all the fields.
+  let fieldChecks = await Promise.all(
+    Object.entries(fields).map(async ([field]) => {
+      return (await pet.isGivenCategory("status", field)) ? null : field;
+    }),
+  );
+
+  let invalidFields = fieldChecks.filter((field) => field !== null);
 
   if (invalidFields.length !== 0) {
     throw new ServiceError(
@@ -160,6 +141,7 @@ const updatePetStatusService = async (
 
   Object.entries(fields).forEach(([field, value]) => {
     const currentField = field as PetTypes.statusKeys;
+    console.log(pet.isGivenCategory("status", field));
     pet[currentField] = Math.min(100, pet[currentField] + value);
     simplifedPet[currentField] = pet[currentField];
   });
@@ -194,23 +176,29 @@ const deletePetService = async (
 const updateModifiableFieldsService = async (
   userId: string | undefined,
   petId: string | undefined,
-  fields: Partial<Record<PetTypes.modifiableKeys, unknown>>,
+  fields: Partial<Record<PetTypes.patchableKeys, unknown>>,
 ) => {
   const pet = await getPetService(petId);
   await checkUserService(userId);
   await checkOwnershipService(userId, pet.owner._id);
 
-  const validFields = ["name"];
-
-  const invalidFields = Object.entries(fields).filter(
-    ([field, value]) => !validFields.includes(field as PetTypes.modifiableKeys),
+  let fieldChecks = await Promise.all(
+    Object.entries(fields).map(async ([field]) => {
+      return (await pet.isGivenCategory("patchable", field)) ? null : field;
+    }),
   );
 
-  // TODO: I know, this is very hacky and only applies for the "name" field, but we have to check req.body values somehow. Fix it when you want to.
-  // Probably needs a better (and more complex) type checking.
-  const invalidValues = Object.values(fields).filter(
-    (value) => typeof value !== "string",
+  let invalidFields = fieldChecks.filter((field) => field !== null);
+
+  const valueChecks = await Promise.all(
+    Object.entries(fields).map(async ([field, value]) => {
+      return (await pet.isValidFieldType(value, field))
+        ? null
+        : { field: value };
+    }),
   );
+
+  let invalidValues = valueChecks.filter((value) => value !== null);
 
   if (invalidFields.length !== 0) {
     throw new ServiceError(
@@ -226,10 +214,10 @@ const updateModifiableFieldsService = async (
     );
   }
 
-  let simplifedPet = {} as Record<PetTypes.modifiableKeys, string>;
+  let simplifedPet = {} as Record<PetTypes.patchableKeys, string>;
 
   Object.entries(fields).forEach(([field, value]) => {
-    const currentField = field as PetTypes.modifiableKeys;
+    const currentField = field as PetTypes.patchableKeys;
     if (typeof value === "string") {
       pet[currentField] = value;
       simplifedPet[currentField] = pet[currentField];
