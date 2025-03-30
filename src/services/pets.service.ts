@@ -62,7 +62,7 @@ const checkOwnershipService = async (
   }
 };
 
-const checkUserService = async (userId: string | undefined) => {
+const checkUserIdService = async (userId: string | undefined) => {
   if (!userId || typeof userId !== "string") {
     throw new ServiceError(400, "Invalid user format.");
   }
@@ -103,7 +103,7 @@ const updatePetStatusService = async (
   fields: Partial<Record<PetTypes.statusKeys, number>>,
 ) => {
   const pet = await getPetService(petId);
-  await checkUserService(userId);
+  await checkUserIdService(userId);
   await checkOwnershipService(userId, pet.owner._id);
 
   // Promise all used here to convert the array to a single Promise
@@ -162,7 +162,7 @@ const deletePetService = async (
   petId: string | undefined,
 ) => {
   const pet = await getPetService(petId);
-  await checkUserService(userId);
+  await checkUserIdService(userId);
   await checkOwnershipService(userId, pet.owner._id);
 
   await Pet.deleteOne({ _id: petId });
@@ -179,7 +179,7 @@ const updateModifiableFieldsService = async (
   fields: Partial<Record<PetTypes.patchableKeys, unknown>>,
 ) => {
   const pet = await getPetService(petId);
-  await checkUserService(userId);
+  await checkUserIdService(userId);
   await checkOwnershipService(userId, pet.owner._id);
 
   let fieldChecks = await Promise.all(
@@ -235,6 +235,6 @@ export {
   checkOwnershipService,
   deletePetService,
   getUserService,
-  checkUserService,
+  checkUserIdService,
   updateModifiableFieldsService,
 };
