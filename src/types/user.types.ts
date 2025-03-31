@@ -9,4 +9,9 @@ export namespace UserTypes {
     pets: mongoose.Types.ObjectId[];
     comparePassword(candidatePassword: string): Promise<boolean>;
   }
+  export interface UserQuery {
+    _id?: string;
+    username?: string;
+    email?: string;
+  }
 }
