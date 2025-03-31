@@ -5,13 +5,12 @@ import {
   createPetService,
   deletePetService,
   getPetService,
-  getUserService,
   updateModifiableFieldsService,
   updatePetStatusService,
 } from "../services/pets.service";
 import { ServiceError } from "../errors/service.error";
 import { PetTypes } from "../types/pet.types";
-import { checkUserExistence } from "../utils/user.utils";
+import { checkUserExistence, getUser } from "../utils/user.utils";
 
 dotenv.config();
 const IDENTIFIER = "pets.controller";
@@ -21,7 +20,7 @@ const getPetsController = async (
   res: Response,
 ): Promise<void> => {
   try {
-    const user = await getUserService(req.userId, false);
+    const user = await getUser({ _id: req.userId }, false);
 
     res
       .status(200)
