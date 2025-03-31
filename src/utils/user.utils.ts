@@ -49,3 +49,9 @@ export async function checkUserExistence({
     throw new ServiceError(409, `User already exist: ${Object.values(query)}`);
   }
 }
+
+export const isUserNameValid = (username: string) => {
+  const res = /^[a-z0-9_\.]+$/.exec(username);
+  const valid = !!res;
+  return valid;
+};
