@@ -2,8 +2,9 @@ import { ServiceError } from "../errors/service.error";
 import { User } from "../models/user.model";
 import { UserTypes } from "../types/user.types";
 import validator from "validator";
-import { checkUserExistence } from "../utils/user.utils";
+import { checkUserExistence, getUser } from "../utils/user.utils";
 import { isUserNameValid } from "../utils/user.utils";
+import jwt from "jsonwebtoken";
 
 const postAuthRegisterService = async (
   email: string,
@@ -49,4 +50,22 @@ const postAuthRegisterService = async (
   };
 };
 
-export { postAuthRegisterService };
+const postAuthLoginService = async (email: string, password: string) => {
+  const user = await getUser({ email }, true);
+  const isMatch = await user.comparePassword(password);
+  if (!isMatch) {
+    throw new ServiceError(401, "Invalid credentials.");
+  }
+
+  const token = jwt.sign(
+    { userId: user._id },
+    process.env.JWT_SECRET as string,
+    {
+      expiresIn: "1h",
+    },
+  );
+
+  return token;
+};
+
+export { postAuthRegisterService, postAuthLoginService };
