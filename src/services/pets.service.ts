@@ -4,27 +4,7 @@ import { ServiceError } from "../errors/service.error";
 import mongoose, { ObjectId } from "mongoose";
 import { PetHistory } from "../models/pet-history.model";
 import { PetTypes } from "../types/pet.types";
-import { log } from "../helpers";
-import { checkUserExistence } from "../utils/user.utils";
-
-const getUserService = async (
-  userId: string | undefined,
-  password: boolean,
-) => {
-  if (!userId || typeof userId !== "string") {
-    throw new ServiceError(400, "Invalid user format.");
-  }
-
-  let passwordString = password ? "+password" : "-password";
-
-  const user = await User.findById(userId).select(passwordString).exec();
-
-  if (!user) {
-    throw new ServiceError(404, "User not found.");
-  }
-
-  return user;
-};
+import { checkUserExistence, getUser } from "../utils/user.utils";
 
 const getPetService = async (
   petId: string | undefined,
@@ -68,7 +48,7 @@ const createPetService = async (
   name: string,
   type: string,
 ) => {
-  const user = await getUserService(userId, false);
+  const user = await getUser({ _id: userId }, false);
 
   if (!name || !type) {
     throw new ServiceError(400, "Name and type is required.");
@@ -223,6 +203,5 @@ export {
   updatePetStatusService,
   checkOwnershipService,
   deletePetService,
-  getUserService,
   updateModifiableFieldsService,
 };
