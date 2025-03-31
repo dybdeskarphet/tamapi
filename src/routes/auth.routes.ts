@@ -1,15 +1,13 @@
 import express from "express";
 import {
-  devAccess,
   getAuthRoot,
-  postAuthLogin,
-  postAuthRegister,
+  postAuthLoginController,
+  postAuthRegisterController,
 } from "../controllers/auth.controller";
 
 const router = express.Router();
 router.get("/", getAuthRoot);
-router.post("/register", postAuthRegister);
-router.post("/login", postAuthLogin);
-router.post("/dev-access", devAccess);
+router.post("/register", postAuthRegisterController);
+router.post("/login", postAuthLoginController);
 
 export { router as authRoute };
