@@ -5,6 +5,7 @@ import mongoose, { ObjectId } from "mongoose";
 import { PetHistory } from "../models/pet-history.model";
 import { PetTypes } from "../types/pet.types";
 import { log } from "../helpers";
+import { checkUserExistence } from "../utils/user.utils";
 
 const getUserService = async (
   userId: string | undefined,
@@ -62,18 +63,6 @@ const checkOwnershipService = async (
   }
 };
 
-const checkUserIdService = async (userId: string | undefined) => {
-  if (!userId || typeof userId !== "string") {
-    throw new ServiceError(400, "Invalid user format.");
-  }
-
-  const user = await User.findById(userId).exec();
-
-  if (!user) {
-    throw new ServiceError(404, "User not found.");
-  }
-};
-
 const createPetService = async (
   userId: string | undefined,
   name: string,
@@ -103,7 +92,7 @@ const updatePetStatusService = async (
   fields: Partial<Record<PetTypes.statusKeys, number>>,
 ) => {
   const pet = await getPetService(petId);
-  await checkUserIdService(userId);
+  await checkUserExistence({ _id: userId });
   await checkOwnershipService(userId, pet.owner._id);
 
   // Promise all used here to convert the array to a single Promise
@@ -162,7 +151,7 @@ const deletePetService = async (
   petId: string | undefined,
 ) => {
   const pet = await getPetService(petId);
-  await checkUserIdService(userId);
+  await checkUserExistence({ _id: userId });
   await checkOwnershipService(userId, pet.owner._id);
 
   await Pet.deleteOne({ _id: petId });
@@ -179,7 +168,7 @@ const updateModifiableFieldsService = async (
   fields: Partial<Record<PetTypes.patchableKeys, unknown>>,
 ) => {
   const pet = await getPetService(petId);
-  await checkUserIdService(userId);
+  await checkUserExistence({ _id: userId });
   await checkOwnershipService(userId, pet.owner._id);
 
   let fieldChecks = await Promise.all(
@@ -235,6 +224,5 @@ export {
   checkOwnershipService,
   deletePetService,
   getUserService,
-  checkUserIdService,
   updateModifiableFieldsService,
 };
