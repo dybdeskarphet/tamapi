@@ -2,7 +2,6 @@ import dotenv from "dotenv";
 import { Request, Response } from "express";
 import {
   checkOwnershipService,
-  checkUserIdService,
   createPetService,
   deletePetService,
   getPetService,
@@ -12,6 +11,7 @@ import {
 } from "../services/pets.service";
 import { ServiceError } from "../errors/service.error";
 import { PetTypes } from "../types/pet.types";
+import { checkUserExistence } from "../utils/user.utils";
 
 dotenv.config();
 const IDENTIFIER = "pets.controller";
@@ -109,7 +109,7 @@ const getPetHistoryController = async (
 ): Promise<void> => {
   try {
     const pet = await getPetService(req.params.id);
-    await checkUserIdService(req.userId);
+    await checkUserExistence({ _id: req.userId });
     await checkOwnershipService(req.userId, pet.owner._id);
 
     res.status(200).json({
