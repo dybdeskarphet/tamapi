@@ -1,8 +1,10 @@
-import express, { Request, Response } from "express";
-import { err, log } from "../helpers";
+import { Request, Response } from "express";
+import { err } from "../helpers";
 import dotenv from "dotenv";
 import { User } from "../models/user.model";
 import jwt from "jsonwebtoken";
+import { postAuthRegisterService } from "../services/auth.service";
+import { ServiceError } from "../errors/service.error";
 
 dotenv.config();
 const VERBOSE_LOG = true;
@@ -22,21 +24,15 @@ const getAuthRoot = async (req: Request, res: Response): Promise<void> => {
 const postAuthRegister = async (req: Request, res: Response): Promise<void> => {
   try {
     const { email, name, username, password } = req.body;
-    const existingUser = await User.findOne({ username }).exec();
-
-    if (existingUser) {
-      res.status(409).json({ message: "User already exists" });
-      return;
-    }
-
-    const user = new User({ email, name, username, password });
-    await user.save();
-
-    res.status(201).json({ message: "User registered successfully" });
+    const user = await postAuthRegisterService(email, name, username, password);
+    res.status(201).json({ message: "User registered successfully", user });
     return;
   } catch (error) {
-    VERBOSE_LOG && err(IDENTIFIER, `Couldn't register the user: ${error}`);
-    res.status(500).json({ message: "Internal server error" });
+    if (error instanceof ServiceError) {
+      res.status(error.status).json({ message: error.message });
+    } else {
+      res.status(500).json({ message: "Internal server error." });
+    }
     return;
   }
 };
