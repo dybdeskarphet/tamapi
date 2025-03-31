@@ -4,7 +4,7 @@ import { err } from "../helpers";
 import { User } from "../models/user.model";
 import { UserTypes } from "../types/user.types";
 
-export async function checkUserExistence({
+export async function validateQuery({
   _id,
   username,
   email,
@@ -43,10 +43,43 @@ export async function checkUserExistence({
     throw new ServiceError(400, "Invalid format.");
   }
 
+  return query;
+}
+
+export async function checkUserExistence({
+  _id,
+  username,
+  email,
+}: Partial<UserTypes.UserQuery>) {
+  let query: UserTypes.UserQuery = await validateQuery({
+    _id,
+    username,
+    email,
+  });
   const user = await User.findOne(query).exec();
 
   if (user) {
     throw new ServiceError(409, `User already exist: ${Object.values(query)}`);
+  }
+}
+
+export async function getUser(
+  { _id, username, email }: Partial<UserTypes.UserQuery>,
+  password: boolean,
+) {
+  let query: UserTypes.UserQuery = await validateQuery({
+    _id,
+    username,
+    email,
+  });
+
+  let passwordString = password ? "+password" : "-password";
+
+  const user = await User.findOne(query).select(passwordString).exec();
+  if (user) {
+    return user;
+  } else {
+    throw new ServiceError(404, `Couldn't find the user.`);
   }
 }
 
