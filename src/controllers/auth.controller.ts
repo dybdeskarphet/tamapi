@@ -1,28 +1,15 @@
 import { Request, Response } from "express";
 import { err } from "../helpers";
 import dotenv from "dotenv";
-import { User } from "../models/user.model";
 import {
   postAuthRegisterService,
   postAuthLoginService,
 } from "../services/auth.service";
 import { ServiceError } from "../errors/service.error";
-import jwt from "jsonwebtoken";
 
 dotenv.config();
 const VERBOSE_LOG = true;
 const IDENTIFIER = "AuthController";
-
-const getAuthRoot = async (req: Request, res: Response): Promise<void> => {
-  try {
-    res.status(201).json({
-      message: "Calling root does nothing in auth route.",
-    });
-  } catch (error) {
-    VERBOSE_LOG && err(IDENTIFIER, `Error while 'GET /':\n${error}`);
-    res.status(500).json({ message: "Internal server error." });
-  }
-};
 
 const postAuthRegisterController = async (
   req: Request,
@@ -61,4 +48,4 @@ const postAuthLoginController = async (
   }
 };
 
-export { getAuthRoot, postAuthRegisterController, postAuthLoginController };
+export { postAuthRegisterController, postAuthLoginController };
