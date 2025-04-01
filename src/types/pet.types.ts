@@ -9,6 +9,11 @@ export namespace PetTypes {
     Alien = "Alien",
   }
 
+  export type PetFields<K extends "patchableKeys" | "statusKeys"> =
+    K extends "patchableKeys"
+      ? Partial<Record<PetTypes.patchableKeys, unknown>>
+      : Partial<Record<PetTypes.statusKeys, number>>;
+
   export interface IPet extends Document {
     name: string;
     type: PetForm;

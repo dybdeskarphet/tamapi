@@ -7,6 +7,29 @@ import { PetTypes } from "../types/pet.types";
 import { checkUserExistence, getUser } from "../utils/user.utils";
 import { UserTypes } from "../types/user.types";
 
+const checkPetFieldsService = async <K extends "patchableKeys" | "statusKeys">(
+  pet: PetTypes.IPet,
+  fields: PetTypes.PetFields<K>,
+  checkCategory: string,
+) => {
+  // Promise all used here to convert the array to a single Promise
+  // If it is not given, service will continue without checking all the fields.
+  let fieldChecks = await Promise.all(
+    Object.entries(fields).map(async ([field]) => {
+      return (await pet.isGivenCategory(checkCategory, field)) ? null : field;
+    }),
+  );
+
+  let invalidFields = fieldChecks.filter((field) => field !== null);
+
+  if (invalidFields.length !== 0) {
+    throw new ServiceError(
+      400,
+      `You cannot update these fields: ${invalidFields}`,
+    );
+  }
+};
+
 const getPetService = async (
   petId: string | undefined,
   populatePet: string[] = ["owner"],
@@ -75,23 +98,7 @@ const updatePetStatusService = async (
   const pet = await getPetService(petId);
   await checkUserExistence({ _id: userId }, false);
   await checkOwnershipService(userId, pet.owner._id);
-
-  // Promise all used here to convert the array to a single Promise
-  // If it is not given, service will continue without checking all the fields.
-  let fieldChecks = await Promise.all(
-    Object.entries(fields).map(async ([field]) => {
-      return (await pet.isGivenCategory("status", field)) ? null : field;
-    }),
-  );
-
-  let invalidFields = fieldChecks.filter((field) => field !== null);
-
-  if (invalidFields.length !== 0) {
-    throw new ServiceError(
-      400,
-      `You cannot update these fields: ${invalidFields}`,
-    );
-  }
+  await checkPetFieldsService<"statusKeys">(pet, fields, "status");
 
   let lowFields: string[] = Object.entries(fields)
     .filter(([field, value]) => pet[field as PetTypes.statusKeys] + value < 0)
@@ -150,14 +157,7 @@ const updateModifiableFieldsService = async (
   const pet = await getPetService(petId);
   await checkUserExistence({ _id: userId }, false);
   await checkOwnershipService(userId, pet.owner._id);
-
-  let fieldChecks = await Promise.all(
-    Object.entries(fields).map(async ([field]) => {
-      return (await pet.isGivenCategory("patchable", field)) ? null : field;
-    }),
-  );
-
-  let invalidFields = fieldChecks.filter((field) => field !== null);
+  await checkPetFieldsService<"patchableKeys">(pet, fields, "patchable");
 
   const valueChecks = await Promise.all(
     Object.entries(fields).map(async ([field, value]) => {
@@ -168,13 +168,6 @@ const updateModifiableFieldsService = async (
   );
 
   let invalidValues = valueChecks.filter((value) => value !== null);
-
-  if (invalidFields.length !== 0) {
-    throw new ServiceError(
-      400,
-      `You cannot update these fields: ${invalidFields}`,
-    );
-  }
 
   if (invalidValues.length !== 0) {
     throw new ServiceError(
