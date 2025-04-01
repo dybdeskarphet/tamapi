@@ -5,6 +5,7 @@ import validator from "validator";
 import { checkUserExistence, getUser } from "../utils/user.utils";
 import { isUserNameValid } from "../utils/user.utils";
 import jwt from "jsonwebtoken";
+import { StringValue } from "ms";
 
 const postAuthRegisterService = async (
   email: string,
@@ -37,8 +38,8 @@ const postAuthRegisterService = async (
     throw new ServiceError(400, "This name is very long to save.");
   }
 
-  await checkUserExistence({ username });
-  await checkUserExistence({ email });
+  await checkUserExistence({ username }, true);
+  await checkUserExistence({ email }, true);
 
   const user = new User({ email, name, username, password });
   await user.save();
@@ -50,8 +51,12 @@ const postAuthRegisterService = async (
   };
 };
 
-const postAuthLoginService = async (email: string, password: string) => {
-  const user = await getUser({ email }, true);
+const postAuthLoginService = async (
+  email: string,
+  password: string,
+  tokenDuration: StringValue,
+) => {
+  const user = (await getUser({ email }, true)) as UserTypes.IUser;
   const isMatch = await user.comparePassword(password);
   if (!isMatch) {
     throw new ServiceError(401, "Invalid credentials.");
@@ -61,7 +66,7 @@ const postAuthLoginService = async (email: string, password: string) => {
     { userId: user._id },
     process.env.JWT_SECRET as string,
     {
-      expiresIn: "1h",
+      expiresIn: tokenDuration,
     },
   );
 

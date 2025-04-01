@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
 
 export namespace UserTypes {
   export interface IUser extends Document {

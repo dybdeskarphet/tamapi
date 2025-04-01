@@ -5,6 +5,7 @@ import mongoose, { ObjectId } from "mongoose";
 import { PetHistory } from "../models/pet-history.model";
 import { PetTypes } from "../types/pet.types";
 import { checkUserExistence, getUser } from "../utils/user.utils";
+import { UserTypes } from "../types/user.types";
 
 const getPetService = async (
   petId: string | undefined,
@@ -48,7 +49,7 @@ const createPetService = async (
   name: string,
   type: string,
 ) => {
-  const user = await getUser({ _id: userId }, false);
+  const user = (await getUser({ _id: userId }, false)) as UserTypes.IUser;
 
   if (!name || !type) {
     throw new ServiceError(400, "Name and type is required.");
@@ -72,7 +73,7 @@ const updatePetStatusService = async (
   fields: Partial<Record<PetTypes.statusKeys, number>>,
 ) => {
   const pet = await getPetService(petId);
-  await checkUserExistence({ _id: userId });
+  await checkUserExistence({ _id: userId }, false);
   await checkOwnershipService(userId, pet.owner._id);
 
   // Promise all used here to convert the array to a single Promise
@@ -110,7 +111,6 @@ const updatePetStatusService = async (
 
   Object.entries(fields).forEach(([field, value]) => {
     const currentField = field as PetTypes.statusKeys;
-    console.log(pet.isGivenCategory("status", field));
     pet[currentField] = Math.min(100, pet[currentField] + value);
     simplifedPet[currentField] = pet[currentField];
   });
@@ -131,7 +131,7 @@ const deletePetService = async (
   petId: string | undefined,
 ) => {
   const pet = await getPetService(petId);
-  await checkUserExistence({ _id: userId });
+  await checkUserExistence({ _id: userId }, false);
   await checkOwnershipService(userId, pet.owner._id);
 
   await Pet.deleteOne({ _id: petId });
@@ -148,7 +148,7 @@ const updateModifiableFieldsService = async (
   fields: Partial<Record<PetTypes.patchableKeys, unknown>>,
 ) => {
   const pet = await getPetService(petId);
-  await checkUserExistence({ _id: userId });
+  await checkUserExistence({ _id: userId }, false);
   await checkOwnershipService(userId, pet.owner._id);
 
   let fieldChecks = await Promise.all(

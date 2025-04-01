@@ -3,6 +3,7 @@ import { ServiceError } from "../errors/service.error";
 import { err } from "../helpers";
 import { User } from "../models/user.model";
 import { UserTypes } from "../types/user.types";
+import { error } from "node:console";
 
 export async function validateQuery({
   _id,
@@ -46,11 +47,10 @@ export async function validateQuery({
   return query;
 }
 
-export async function checkUserExistence({
-  _id,
-  username,
-  email,
-}: Partial<UserTypes.UserQuery>) {
+export async function checkUserExistence(
+  { _id, username, email }: Partial<UserTypes.UserQuery>,
+  errorIfExist: boolean,
+) {
   let query: UserTypes.UserQuery = await validateQuery({
     _id,
     username,
@@ -59,13 +59,27 @@ export async function checkUserExistence({
   const user = await User.findOne(query).exec();
 
   if (user) {
-    throw new ServiceError(409, `User already exist: ${Object.values(query)}`);
+    if (errorIfExist) {
+      throw new ServiceError(
+        409,
+        `User already exist: ${Object.values(query)}`,
+      );
+    }
+  } else {
+    if (!errorIfExist) {
+      throw new ServiceError(
+        409,
+        `User doesn't exist: ${Object.values(query)}`,
+      );
+    }
   }
 }
 
 export async function getUser(
   { _id, username, email }: Partial<UserTypes.UserQuery>,
   password: boolean,
+  validate: boolean = true,
+  populate: string[] = ["pets"],
 ) {
   let query: UserTypes.UserQuery = await validateQuery({
     _id,
@@ -75,11 +89,18 @@ export async function getUser(
 
   let passwordString = password ? "+password" : "-password";
 
-  const user = await User.findOne(query).select(passwordString).exec();
+  const user = await User.findOne(query)
+    .select(passwordString)
+    .populate(populate.join(" "))
+    .exec();
   if (user) {
     return user;
   } else {
-    throw new ServiceError(404, `Couldn't find the user.`);
+    if (validate) {
+      throw new ServiceError(404, `Couldn't find the user.`);
+    } else {
+      return {};
+    }
   }
 }
 
