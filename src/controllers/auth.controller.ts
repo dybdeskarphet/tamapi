@@ -19,7 +19,9 @@ const postAuthRegisterController = async (
   try {
     const { email, name, username, password } = req.body;
     const user = await postAuthRegisterService(email, name, username, password);
-    res.status(201).json({ message: "User registered successfully", user });
+    res
+      .status(201)
+      .json({ message: "User registered successfully", data: { user } });
     return;
   } catch (error) {
     if (error instanceof ServiceError) {
@@ -38,7 +40,7 @@ const postAuthLoginController = async (
   try {
     const { email, password } = req.body;
     const token = await postAuthLoginService(email, password, "1h");
-    res.status(200).json({ token, message: "Login successful" });
+    res.status(200).json({ message: "Login successful", data: { token } });
   } catch (error) {
     if (error instanceof ServiceError) {
       res.status(error.status).json({ message: error.message });
@@ -83,7 +85,9 @@ const postTestUserController = async (
     }
 
     const token = await postAuthLoginService(email, password, "90d");
-    res.status(200).json({ token, message: "Login successful" });
+    res
+      .status(200)
+      .json({ message: "Login successful", data: { user, token } });
   } catch (error) {
     if (error instanceof ServiceError) {
       res.status(error.status).json({ message: error.message });
