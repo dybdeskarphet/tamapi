@@ -19,7 +19,10 @@ const postAuthRegisterService = async (
       allow_ip_domain: true,
     })
   ) {
-    throw new ServiceError(400, "Bad e-mail address.");
+    throw new ServiceError(
+      400,
+      "Bad e-mail address. Your e-mail address should look like 'test@test.com' or 'test@127.0.0.1'.",
+    );
   }
 
   if (!validator.isStrongPassword(password)) {
@@ -35,7 +38,10 @@ const postAuthRegisterService = async (
   }
 
   if (!(name.length > 1) || !(name.length < 150)) {
-    throw new ServiceError(400, "This name is very long to save.");
+    throw new ServiceError(
+      400,
+      "This name is either too short or too long to be saved. It should be between 1 and 150 characters.",
+    );
   }
 
   await checkUserExistence({ username }, true);
