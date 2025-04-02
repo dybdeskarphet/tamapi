@@ -3,7 +3,6 @@ import { ServiceError } from "../errors/service.error";
 import { err } from "../helpers";
 import { User } from "../models/user.model";
 import { UserTypes } from "../types/user.types";
-import { error } from "node:console";
 
 export async function validateQuery({
   _id,
@@ -60,17 +59,15 @@ export async function checkUserExistence(
 
   if (user) {
     if (errorIfExist) {
-      throw new ServiceError(
-        409,
-        `User already exist: ${Object.values(query)}`,
-      );
+      throw new ServiceError(409, `User already exist.`, {
+        query: Object.values(query),
+      });
     }
   } else {
     if (!errorIfExist) {
-      throw new ServiceError(
-        409,
-        `User doesn't exist: ${Object.values(query)}`,
-      );
+      throw new ServiceError(409, "User doesn't exist.", {
+        query: Object.values(query),
+      });
     }
   }
 }
