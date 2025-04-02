@@ -7,6 +7,7 @@ import {
 } from "../services/auth.service";
 import { ServiceError } from "../errors/service.error";
 import { checkUserExistence, getUser } from "../utils/user.utils";
+import { handleControllerError } from "../utils/error-response";
 
 dotenv.config();
 const VERBOSE_LOG = true;
@@ -24,11 +25,7 @@ const postAuthRegisterController = async (
       .json({ message: "User registered successfully", data: { user } });
     return;
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
@@ -42,11 +39,7 @@ const postAuthLoginController = async (
     const token = await postAuthLoginService(email, password, "1h");
     res.status(200).json({ message: "Login successful", data: { token } });
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
@@ -89,11 +82,7 @@ const postTestUserController = async (
       .status(200)
       .json({ message: "Login successful", data: { user, token } });
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
