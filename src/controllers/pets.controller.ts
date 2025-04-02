@@ -8,13 +8,14 @@ import {
   updateModifiableFieldsService,
   updatePetStatusService,
 } from "../services/pets.service";
-import { ServiceError } from "../errors/service.error";
 import { PetTypes } from "../types/pet.types";
 import { checkUserExistence, getUser } from "../utils/user.utils";
 import { UserTypes } from "../types/user.types";
+import { handleControllerError } from "../utils/error-response";
 
 dotenv.config();
 const IDENTIFIER = "pets.controller";
+const VERBOSE_LOG = false;
 
 const getPetsController = async (
   req: Request,
@@ -29,11 +30,7 @@ const getPetsController = async (
     });
     return;
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
@@ -47,11 +44,7 @@ const getPetController = async (req: Request, res: Response): Promise<void> => {
       .json({ message: "Pet stats listed successfully.", data: { pet } });
     return;
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
@@ -68,11 +61,7 @@ const postPetController = async (
     );
     res.status(201).json({ message: "Pet created.", data: { pet } });
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
@@ -96,11 +85,7 @@ const postPetActionController = async (
       data: { pet: updateStatus.pet },
     });
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
@@ -126,11 +111,7 @@ const getPetHistoryController = async (
     });
     return;
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
@@ -149,11 +130,7 @@ const deletePetController = async (
     });
     return;
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
@@ -171,11 +148,7 @@ const patchPetController = async (
     res.status(200).json({ messsage: `Pet updated.`, data: { pet } });
     return;
   } catch (error) {
-    if (error instanceof ServiceError) {
-      res.status(error.status).json({ message: error.message });
-    } else {
-      res.status(500).json({ message: "Internal server error." });
-    }
+    handleControllerError(res, error, VERBOSE_LOG);
     return;
   }
 };
