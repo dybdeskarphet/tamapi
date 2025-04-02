@@ -23,10 +23,9 @@ const checkPetFieldsService = async <K extends "patchableKeys" | "statusKeys">(
   let invalidFields = fieldChecks.filter((field) => field !== null);
 
   if (invalidFields.length !== 0) {
-    throw new ServiceError(
-      400,
-      `You cannot update these fields: ${invalidFields}`,
-    );
+    throw new ServiceError(400, `Invalid fields in your request.`, {
+      invalidFields,
+    });
   }
 };
 
@@ -107,7 +106,10 @@ const updatePetStatusService = async (
   if (lowFields.length !== 0) {
     throw new ServiceError(
       401,
-      `Some fields are too low to perform this action: ${lowFields.join(", ")}`,
+      "Some fields are too low to perform this action",
+      {
+        lowFields,
+      },
     );
   }
 
@@ -163,7 +165,7 @@ const updateModifiableFieldsService = async (
     Object.entries(fields).map(async ([field, value]) => {
       return (await pet.isValidFieldType(value, field))
         ? null
-        : { field: value };
+        : { [field]: value };
     }),
   );
 
@@ -172,7 +174,10 @@ const updateModifiableFieldsService = async (
   if (invalidValues.length !== 0) {
     throw new ServiceError(
       400,
-      `You cannot update fields with invalid values: ${invalidValues}`,
+      "You cannot update fields with invalid values",
+      {
+        invalidValues,
+      },
     );
   }
 
