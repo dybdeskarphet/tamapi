@@ -9,6 +9,7 @@ import { rootController } from "./controllers/root.controller";
 import { petsRoute } from "./routes/pets.routes";
 import { connectDatabase } from "./db";
 import path from "path";
+import { profileRoute } from "./routes/profile.routes";
 
 connectDatabase(path.basename(__filename));
 
@@ -29,6 +30,7 @@ app.use(express.json());
 // Routes
 app.use("/auth", authRoute);
 app.use("/pets", petsRoute);
+app.use("/profile", profileRoute);
 
 // Setup API doc
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));
