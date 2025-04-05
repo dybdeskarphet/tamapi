@@ -38,7 +38,7 @@ export async function validateQuery({
   if (Object.keys(query).length === 0) {
     err(
       "user.utils.ts",
-      "You should give at least one argument to the checkUserExistence function.",
+      "You should give at least one argument to the validateQuery function.",
     );
     throw new ServiceError(400, "Invalid format.");
   }
