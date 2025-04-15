@@ -76,6 +76,11 @@
         color: #333;
         margin-bottom: 10px;
       }
+      .endpoints h4 {
+        font-size: 20px;
+        color: #333;
+        margin-bottom: 10px;
+      }
 
       .endpoints ul {
         list-style-type: none;
@@ -117,16 +122,66 @@
         <h2>Overview</h2>
         <p>
           This API provides resources to manage and interact with virtual pets
-          information and user data.
+          and related user data.
         </p>
 
         <div class="endpoints">
           <h3>Endpoints</h3>
+          <h4>Auth Endpoints</h4>
           <ul>
-            <li><strong>GET /api/pets</strong> - Retrieve all pets</li>
-            <li><strong>POST /api/pets</strong> - Add a new pet</li>
-            <li><strong>GET /api/users</strong> - Retrieve all users</li>
-            <li><strong>POST /api/users</strong> - Register a new user</li>
+            <li><strong>POST /auth/register</strong> - Register a new user</li>
+            <li>
+              <strong>POST /auth/login</strong> - Get a token by logging in
+            </li>
+            <li>
+              <strong>POST /auth/test-user</strong> - Register/login as a
+              test-user (dev-only)
+            </li>
+          </ul>
+          <h4>Pet Endpoints</h4>
+          <ul>
+            <li>
+              <strong>GET /pets</strong> - Get all pets of the user (user token
+              required)
+            </li>
+            <li>
+              <strong>GET /pets/:id</strong> - Get a pet by its ID (user token
+              required)
+            </li>
+            <li>
+              <strong>POST /pets</strong> - Create a new pet (user token
+              required)
+            </li>
+            <li>
+              <strong>POST /pets/:id/history</strong> - Get the action history
+              of a pet (user token required)
+            </li>
+            <li>
+              <strong>DELETE /pets/:id </strong> - Delete a pet (user token
+              required)
+            </li>
+            <li>
+              <strong>PATCH /pets/:id </strong> - Patch available information
+              about the pet (user token required)
+            </li>
+            <li>
+              <strong>POST /pets/:id/:action </strong> - Perform an action on
+              pet (user token required)
+            </li>
+          </ul>
+          <h4>Pet Actions</h4>
+          <ul>
+          <li><strong>feed</strong> - Feed the pet.</li>
+          <li><strong>play</strong> - Play with the pet.</li>
+          <li><strong>sleep</strong> - Put the pet to sleep.</li>
+          <li><strong>clean</strong> - Clean the pet.</li>
+          <li><strong>heal</strong> - Heal the pet.</li>
+          <ul>
+          <h4>Profile Endpoints</h4>
+          <ul>
+            <li>
+              <strong>GET /profile</strong> - Get the current information about the user (user token required)
+            </li>
           </ul>
         </div>
 
