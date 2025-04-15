@@ -17,12 +17,6 @@ dotenv.config();
 const app: Express = express();
 const openapiSpec = YAML.load("./openapi.yaml");
 const port = process.env.API_PORT || 3000;
-openapiSpec.servers = [
-  {
-    url: `http://${ip.address()}:${port}`,
-    description: "Local server",
-  },
-];
 
 // Middleware
 app.use(express.json());
@@ -31,9 +25,6 @@ app.use(express.json());
 app.use("/auth", authRoute);
 app.use("/pets", petsRoute);
 app.use("/profile", profileRoute);
-
-// Setup API doc
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpec));
 
 // Root
 app.get("/", rootController);
