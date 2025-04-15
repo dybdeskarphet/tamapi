@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>API Documentation</title>
+    <style>
+      /* Global styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Arial", sans-serif;
+      }
+
+      body {
+        background-color: #f4f7fc;
+        color: #333;
+      }
+
+      .container {
+        width: 90%;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 0;
+      }
+
+      /* Header styles */
+      header {
+        background: linear-gradient(135deg, #6a11cb, #2575fc);
+        color: white;
+        padding: 60px 0;
+        text-align: center;
+        border-radius: 8px;
+      }
+
+      header h1 {
+        font-size: 48px;
+        font-weight: bold;
+      }
+
+      header p {
+        font-size: 20px;
+        margin-top: 10px;
+        color: white;
+      }
+
+      /* Content Section */
+      .content {
+        background-color: #fff;
+        border-radius: 8px;
+        padding: 40px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        margin-top: -30px;
+      }
+
+      h2 {
+        font-size: 36px;
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      p {
+        font-size: 18px;
+        line-height: 1.6;
+        color: #555;
+      }
+
+      .endpoints {
+        margin-top: 40px;
+      }
+
+      .endpoints h3 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .endpoints ul {
+        list-style-type: none;
+        padding-left: 0;
+      }
+
+      .endpoints li {
+        font-size: 18px;
+        color: #007bff;
+        margin-bottom: 10px;
+      }
+
+      .endpoints li strong {
+        font-weight: bold;
+      }
+
+      /* Footer Section */
+      .footer {
+        margin-top: 40px;
+        text-align: center;
+        font-size: 16px;
+        color: #888;
+      }
+
+      .footer p {
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="container">
+        <h1>Tamapi</h1>
+        <p>🐈 Tamagotchi inspired virtual pet API.</p>
+      </div>
+    </header>
+    <section class="content">
+      <div class="container">
+        <h2>Overview</h2>
+        <p>
+          This API provides resources to manage and interact with virtual pets
+          information and user data.
+        </p>
+
+        <div class="endpoints">
+          <h3>Endpoints</h3>
+          <ul>
+            <li><strong>GET /api/pets</strong> - Retrieve all pets</li>
+            <li><strong>POST /api/pets</strong> - Add a new pet</li>
+            <li><strong>GET /api/users</strong> - Retrieve all users</li>
+            <li><strong>POST /api/users</strong> - Register a new user</li>
+          </ul>
+        </div>
+
+        <div class="footer">
+          <p>Created with ❤️ by Ahmet Arda Kavakcı</p>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
