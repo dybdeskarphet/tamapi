@@ -15,7 +15,6 @@ connectDatabase(path.basename(__filename));
 
 dotenv.config();
 const app: Express = express();
-const openapiSpec = YAML.load("./openapi.yaml");
 const port = process.env.API_PORT || 3000;
 
 // Middleware
